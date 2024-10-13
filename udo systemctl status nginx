@@ -1,0 +1,30 @@
+[0;1;32m●[0m apache2.service - The Apache HTTP Server
+     Loaded: loaded (]8;;file://abstracttechnologies/usr/lib/systemd/system/apache2.service/usr/lib/systemd/system/apache2.service]8;;; [0;1;32menabled[0m; preset: [0;1;32menabled[0m)
+     Active: [0;1;32mactive (running)[0m since Mon 2024-10-07 08:19:50 UTC; 25min ago
+       Docs: ]8;;https://httpd.apache.org/docs/2.4/https://httpd.apache.org/docs/2.4/]8;;
+    Process: 33370 ExecStart=/usr/sbin/apachectl start (code=exited, status=0/SUCCESS)
+    Process: 33864 ExecReload=/usr/sbin/apachectl graceful (code=exited, status=0/SUCCESS)
+   Main PID: 33374 (apache2)
+      Tasks: 8 (limit: 1113)
+     Memory: 31.3M (peak: 44.2M)
+        CPU: 577ms
+     CGroup: /system.slice/apache2.service
+             ├─[0;38;5;245m33374 /usr/sbin/apache2 -k start[0m
+             ├─[0;38;5;245m33869 /usr/sbin/apache2 -k start[0m
+             ├─[0;38;5;245m33870 /usr/sbin/apache2 -k start[0m
+             ├─[0;38;5;245m33871 /usr/sbin/apache2 -k start[0m
+             ├─[0;38;5;245m33872 /usr/sbin/apache2 -k start[0m
+             ├─[0;38;5;245m33873 /usr/sbin/apache2 -k start[0m
+             ├─[0;38;5;245m33874 /usr/sbin/apache2 -k start[0m
+             └─[0;38;5;245m33877 /usr/sbin/apache2 -k start[0m
+
+Oct 07 08:29:23 abstracttechnologies systemd[1]: Reloading apache2.service - The Apache HTTP Server...
+Oct 07 08:29:23 abstracttechnologies apachectl[33497]: AH00112: Warning: DocumentRoot [/var/www/html/baba_neem_karoli_traders/public] does not exist
+Oct 07 08:29:23 abstracttechnologies apachectl[33497]: AH00112: Warning: DocumentRoot [/var/www/html/baba_neem_karoli_traders/public] does not exist
+Oct 07 08:29:23 abstracttechnologies apachectl[33497]: AH00558: apache2: Could not reliably determine the server's fully qualified domain name, using 127.0.1.1. Set the 'ServerName' directive globally to suppress this message
+Oct 07 08:29:23 abstracttechnologies systemd[1]: Reloaded apache2.service - The Apache HTTP Server.
+Oct 07 08:37:06 abstracttechnologies systemd[1]: Reloading apache2.service - The Apache HTTP Server...
+Oct 07 08:37:06 abstracttechnologies apachectl[33867]: AH00112: Warning: DocumentRoot [/var/www/baba_neen_karoli_traders/public] does not exist
+Oct 07 08:37:06 abstracttechnologies apachectl[33867]: AH00112: Warning: DocumentRoot [/var/www/html/baba_neem_karoli_traders/public] does not exist
+Oct 07 08:37:06 abstracttechnologies apachectl[33867]: AH00558: apache2: Could not reliably determine the server's fully qualified domain name, using 127.0.1.1. Set the 'ServerName' directive globally to suppress this message
+Oct 07 08:37:06 abstracttechnologies systemd[1]: Reloaded apache2.service - The Apache HTTP Server.

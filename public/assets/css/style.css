@@ -1,0 +1,102 @@
+/*================================================================================
+	Item Name: Modern Admin - Clean Bootstrap 4 Dashboard HTML Template
+	Author: PIXINVENT
+	Author URL: http://www.themeforest.net/user/pixinvent
+================================================================================
+
+NOTE:
+------
+PLACE HERE YOUR OWN SCSS CODES AND IF NEEDED, OVERRIDE THE STYLES FROM THE OTHER STYLESHEETS.
+WE WILL RELEASE FUTURE UPDATES SO IN ORDER TO NOT OVERWRITE YOUR STYLES IT'S BETTER LIKE THIS.  */
+
+.card {
+    background-color: #ffffff; /* White background for the card */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+    transition: transform 0.2s; /* Smooth hover effect */
+}
+
+.card:hover {
+    transform: scale(1.02); /* Slightly enlarge on hover */
+}
+
+.patient-img {
+    width: 120px; /* Set a fixed size for the image */
+    height: 120px; /* Set a fixed size for the image */
+    object-fit: cover; /* Maintain aspect ratio */
+    border: 3px solid #007bff; /* Border color */
+    background-color: #e9f5ff; /* Light blue background for the image */
+    padding: 5px; /* Padding around the image */
+    border-radius: 50%; /* Circular image */
+}
+
+.patient-name {
+    font-size: 1.5rem; /* Increase font size */
+    font-weight: 600; /* Semi-bold */
+    color: #333; /* Dark text color */
+    margin-top: 10px; /* Margin for spacing */
+}
+
+.patient-info {
+    padding-left: 15px; /* Add some padding for better spacing */
+}
+
+.patient-info-heading {
+    font-weight: bold; /* Bold heading for info items */
+    color: #007bff; /* Color for the headings */
+}
+
+.patient-info li {
+    padding: 8px 0; /* Spacing between list items */
+    border-bottom: 1px solid #e9ecef; /* Divider line */
+}
+
+.patient-info li:last-child {
+    border-bottom: none; /* Remove border from last item */
+}
+
+.patient-info li:hover {
+    background-color: #f1f8ff; /* Light blue background on hover */
+}
+
+@media (max-width: 768px) {
+    .patient-info-heading {
+        display: inline-block; /* Keep headings inline for smaller screens */
+        font-weight: normal; /* Normal weight for headings on smaller screens */
+    }
+
+    .patient-img {
+        width: 80px; /* Smaller image size for mobile */
+        height: 80px; /* Smaller image size for mobile */
+    }
+
+    .patient-info {
+        padding-left: 0; /* Reset padding for mobile */
+    }
+}
+
+@media (max-width: 576px) {
+    .patient-name {
+        font-size: 1.2rem; /* Smaller font size for mobile */
+    }
+
+    .patient-info li {
+        padding: 4px 0; /* Less padding for mobile */
+    }
+
+    .patient-info-heading {
+        display: block; /* Full width for headings */
+        margin-bottom: 4px; /* Space below headings */
+    }
+}
+
+.rounded-square {
+    width: 300px; /* Adjust width as needed */
+    height: 300px; /* Set the same height for square shape */
+    object-fit: cover; /* Ensures the image covers the container without distortion */
+    border-radius: 15px; /* Optional: rounded corners, adjust as needed */
+}
+
+
+
+

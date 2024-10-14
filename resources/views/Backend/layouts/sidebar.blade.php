@@ -20,7 +20,6 @@
                     </li>
                 </ul>
             </li>
-            @endif
             <li class=" nav-item"><a href="#"><i class="fa fa-list-alt"></i><span class="menu-title" data-i18n="Appointment">Order</span></a>
                 <ul class="menu-content">
                     <li><a class="menu-item" href="{{Route('order.index')}}"><i></i><span>Order</span></a>
@@ -29,30 +28,20 @@
                     </li>
                 </ul>
             </li>
-            <li class=" nav-item"><a href="#"><i class="la la-stethoscope"></i><span class="menu-title" data-i18n="Doctors">Doctors</span></a>
+            @endif
+            @if(Auth::user()->role_id=='2')
+            <li class=" nav-item"><a href="#"><i class="fas fa-shopping-cart"></i><span class="menu-title" data-i18n="Patients">Product</span></a>
                 <ul class="menu-content">
-                    <li><a class="menu-item" href="hospital-doctors-list.html"><i></i><span>All Doctors</span></a>
+                    <li><a class="menu-item" href="{{Route('distributor_product.index')}}"><i></i><span>Order Products</span></a>
                     </li>
-                    <li><a class="menu-item" href="hospital-add-doctor.html"><i></i><span>Add Doctors</span></a>
+                    <li><a class="menu-item" href="{{ROute('cart.index')}}"><i></i><span>Shopping Cart</span></a>
                     </li>
-                    <li><a class="menu-item" href="hospital-doctor-profile.html"><i></i><span>Doctor Profile</span></a>
+                    <li><a class="menu-item" href="{{Route('order.index')}}"><i></i><span>Placed Order</span></a>
                     </li>
                 </ul>
             </li>
-            <li class=" nav-item"><a href="{{Route('distributor_product.index')}}"><i class="fa fa-user"></i><span class="menu-title" data-i18n="Report">Order Product</span></a>
-            </li>
-
-            <li class=" nav-item"><a href="#"><i class="la la-users"></i><span class="menu-title" data-i18n="Patients">Patients</span></a>
-                <ul class="menu-content">
-                    <li><a class="menu-item" href="hospital-patients-list.html"><i></i><span>All Patients</span></a>
-                    </li>
-                    <li><a class="menu-item" href="hospital-add-patient.html"><i></i><span>Add Patients</span></a>
-                    </li>
-                    <li><a class="menu-item" href="hospital-patient-profile.html"><i></i><span>Patient Profile</span></a>
-                    </li>
-                </ul>
-            </li>
-            <li class=" nav-item"><a href="hospital-payment-reports.html"><i class="la la-bar-chart"></i><span class="menu-title" data-i18n="Report">Report</span></a>
+            @endif
+            {{-- <li class=" nav-item"><a href="hospital-payment-reports.html"><i class="la la-bar-chart"></i><span class="menu-title" data-i18n="Report">Report</span></a>
             </li>
             <li class=" nav-item"><a href="#"><i class="la la-dollar"></i><span class="menu-title" data-i18n="Payments">Payments</span></a>
                 <ul class="menu-content">
@@ -201,7 +190,7 @@
                     <li><a class="menu-item" href="chartjs-advance-charts.html"><i></i><span data-i18n="Advance charts">Advance charts</span></a>
                     </li>
                 </ul>
-            </li>
+            </li> --}}
         </ul>
     </div>
 </div>

@@ -14,8 +14,11 @@ return new class extends Migration
         Schema::create('bills', function (Blueprint $table) {
             $table->id();
             $table->string('bill_no',100)->unique();
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade')->nullable();
             $table->unsignedBigInteger('order_id');
-            $table->foreign('order_id')->references('id')->on('oders')->onDelete('cascade')->onUpdate('cascade')->nullable();
+            $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade')->onUpdate('cascade')->nullable();
+            $table->string('order_no');
             $table->timestamps();
         });
     }

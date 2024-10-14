@@ -31,9 +31,11 @@ Route::middleware(DistrubutorMiddleware::class)->group(function(){
 
      // Route for Order Placed  By the distributors Start---------------------------------------
      Route::prefix('order')->group(function(){
-        Route::get('orderPlaced',[OrderPlacedController::class,'oderPlaced'])->name('order.orderPlaced');
-        // Route::post('add_to_cart',[OrderPlacedController::class,'addToCart'])->name('cart.add_to_cart');
-        // Route::post('listing',[OrderPlacedController::class,'listing',])->name('cart.listing');
+         Route::GET('index',[OrderPlacedController::class,'index'])->name('order.index');
+        Route::GET('orderPlaced',[OrderPlacedController::class,'oderPlaced'])->name('order.orderPlaced');
+        Route::POST('listing',[OrderPlacedController::class,'listing',])->name('order.listing');
+        Route::GET('listingDetail/{id}',[OrderPlacedController::class,'listingDetail',])->name('order.listingDetail');
+        Route::GET('invoicePdf/{id}',[OrderPlacedController::class,'invoicePdf',])->name('order.invoicePdf');
         // Route::get('delete',[OrderPlacedController::class,'delete',])->name('cart.delete');
     });
     // Route for  Order Placed By the distributors End---------------------------------------

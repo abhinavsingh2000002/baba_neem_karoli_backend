@@ -136,7 +136,7 @@ function loadProduct(page = 1) {
                                         </a>
                                         <div class="quantity-input mt-2">
                                             <label for="quantity${data.id}">Quantity:</label>
-                                            <input type="number" id="quantity${data.id}" name="quantity" class="form-control" min="1" value="${data.quantity}">
+                                            <input type="number" id="quantity${data.id}" pattern="^(1|[2-9]|[1-9][0-9])(\.5)?$" name="quantity" step="0.5" class="form-control" min="1" value="${data.quantity}">
                                             <button type="button" class="btn btn-primary mt-2" id="addToCart">
                                                 <i class="ft-shopping-cart"></i> Add to Cart
                                             </button>
@@ -231,6 +231,16 @@ $(document).on('click', '#addToCart', function(e) {
     const productCard = $(this).closest('.card-body');  // Get the closest product card
     const productId = productCard.find('a').attr('href').split('/').pop(); // Extract product ID from URL
     const quantity = productCard.find('input[name="quantity"]').val(); // Get the entered quantity
+
+
+    const quantityPattern = /^(1|[2-9]|[1-9][0-9])(\.5)?$/; // regex for 1.5, 2.5, 3.5, etc.
+
+    if (!quantityPattern.test(quantity)) {
+        alert('Please enter a valid quantity (e.g., 1.5, 2.5, 3.5).');
+        return; // Stop execution if the quantity is invalid
+    }
+
+
     // Send the product ID and quantity to the server
     $.ajax({
         url: '{{ route('cart.add_to_cart') }}',  // Your route for adding to cart

@@ -63,4 +63,8 @@
 <script src="../../../app-assets/js/scripts/pages/ecommerce-product-shop.js"></script>
 <!-- END: Page JS-->
 
+  <!-- BEGIN: Page JS-->
+  <script src="../../../app-assets/js/scripts/pages/invoice-template.js"></script>
+  <!-- END: Page JS-->
+
 @yield('page-js')

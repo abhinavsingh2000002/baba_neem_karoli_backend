@@ -98,7 +98,7 @@ Shopping Cart
                                             <div class="card-body">
                                                 <div class="text-right">
                                                     <a href="{{Route('distributor_product.index')}}" class="btn btn-info mr-2">Continue Shopping</a>
-                                                    <a href="{{Route('order.orderPlaced')}}" class="btn btn-warning">Place Order</a>
+                                                    <a href="#" id="placeOrder" class="btn btn-warning">Place Order</a>
                                                 </div>
                                             </div>
                                         </div>
@@ -183,7 +183,7 @@ Shopping Cart
                             <td>
                                 <div class="input-group">
                                     <label class="text-center mb-4" for="quantity">Quantity:
-                                        <input type="number" class="quantity" id="quantity_${cart.id}" name="quantity" value="${cart.quantity}" class="form-control" min="1">
+                                        <input type="number" class="quantity" pattern="^(1|[2-9]|[1-9][0-9])(\.5)?$" step="0.5" id="quantity_${cart.product_id}" name="quantity" value="${cart.quantity}" class="form-control" min="1">
                                     </label>
                                 </div>
                             </td>
@@ -226,6 +226,12 @@ loadCartProducts();
     e.preventDefault();
     let cartId = $(this).attr('id').split('_')[1];
     let quantity = $(this).val();
+    const quantityPattern = /^(1|[2-9]|[1-9][0-9])(\.5)?$/; // regex for 1.5, 2.5, 3.5, etc.
+
+    if (!quantityPattern.test(quantity)) {
+        alert('Please enter a valid quantity (e.g., 1.5, 2.5, 3.5).');
+        return; // Stop execution if the quantity is invalid
+    }
     changeQuantity(cartId, quantity);
 });
 
@@ -279,6 +285,32 @@ function deleteCartProduct(cartId){
         }
     });
 }
+
+    function placeOrder()
+    {
+        $.ajax({
+            url:'{{Route('order.orderPlaced')}}',
+            type:'GET',
+            dataType:'json',
+            success:function(response){
+                if(response.failed){
+                    alert(response.failed);
+                }
+                else{
+                    alert(response.success);
+                }
+            },
+            error:function(xhr,status,error){
+                alert('Error While Order Product');
+                console.log('Error',error);
+            }
+        })
+    }
+
+    $(document).on('click','#placeOrder',function(e){
+        e.preventDefault();
+        placeOrder();
+    });
 
 </script>
 @endsection

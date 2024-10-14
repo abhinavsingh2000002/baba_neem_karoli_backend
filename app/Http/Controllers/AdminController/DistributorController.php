@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\AdminController;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use DB;
 use App\Models\Role;
@@ -192,36 +193,36 @@ class DistributorController extends Controller
             'role_id' => 'required|integer|in:1,2,3',
             'image_path' => 'nullable|mimes:jpeg,png|max:10240',  // Image upload is optional during update
         ];
-        
+
         $validator = Validator::make($request->all(), $rules);
-        
+
         if (!$validator->fails()) {
             $user = User::findOrFail($id);
-        
+
             $name_email = str_replace(' ', '_', $request->name) . '_' . $request->email;
             $role = $request->role_id;
-        
+
             $folderPath = ($role == '2') ? '/uploads/distributor/' : '/uploads/driver/';
-        
+
             if (!is_dir(public_path($folderPath))) {
                 mkdir(public_path($folderPath), 0777, true);
             }
-        
+
             if ($request->hasFile('image_path')) {
                 $file = $request->file('image_path');
                 $extension = $file->getClientOriginalExtension();
-        
+
                 $image_name = $name_email . '_' . time();
                 $filename = $image_name . '.' . $extension;
                 $path = public_path($folderPath . $filename);
-        
+
                 // Move the uploaded file
                 $file->move(public_path($folderPath), $filename);
-        
+
                 // Directly assign the image path to the user
                 $user->image_path = $folderPath . $filename;
             }
-        
+
             $user->name = $request->name;
             $user->email = $request->email;
             $user->mobile = $request->mobile;
@@ -230,14 +231,14 @@ class DistributorController extends Controller
             $user->aadhar_number = $request->aadhar_number;
             $user->pan_number = $request->pan_number;
             $user->address = $request->address;
-        
+
             // Hash password if provided
             if ($request->filled('password')) {
                 $user->password = Hash::make($request->password);
             }
-        
+
             $user->save();
-        
+
             session()->flash('success', 'Distributor Updated Successfully');
             return redirect()->route('distributor.index');
         } else {
@@ -245,7 +246,7 @@ class DistributorController extends Controller
                 ->withErrors($validator)
                 ->withInput();
         }
-    }        
+    }
 
     public function delete($id)
     {

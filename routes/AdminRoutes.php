@@ -2,11 +2,11 @@
 
 use App\Http\Middleware\AdminMiddleware;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DistributorController;
-use App\Http\Controllers\DriverController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\MapProductController;
-use App\Http\Controllers\OrderController;
+use App\Http\Controllers\AdminController\DistributorController;
+use App\Http\Controllers\AdminController\DriverController;
+use App\Http\Controllers\AdminController\ProductController;
+use App\Http\Controllers\AdminController\MapProductController;
+use App\Http\Controllers\AdminController\OrderController;
 
 Route::middleware(AdminMiddleware::class)->group(function(){
     // distributor Routes start--------------------------------------------------------------------------

@@ -12,9 +12,17 @@
 <script src="../../../app-assets/vendors/js/vendors.min.js"></script>
 <!-- BEGIN Vendor JS-->
 
+
 <!-- BEGIN: Page Vendor JS-->
 <script src="../../../app-assets/vendors/js/extensions/dropzone.min.js"></script>
+<script src="../../../app-assets/vendors/js/forms/spinner/jquery.bootstrap-touchspin.js"></script>
 <script src="../../../app-assets/vendors/js/ui/prism.min.js"></script>
+<script src="../../../app-assets/vendors/js/extensions/jquery.raty.js"></script>
+<script src="../../../app-assets/vendors/js/extensions/jquery.cookie.js"></script>
+<script src="../../../app-assets/vendors/js/extensions/jquery.treeview.js"></script>
+<script src="../../../app-assets/vendors/js/extensions/wNumb.js"></script>
+<script src="../../../app-assets/vendors/js/extensions/nouislider.min.js"></script>
+<script src="../../../app-assets/vendors/js/forms/icheck/icheck.min.js"></script>
 <!-- END: Page Vendor JS-->
 
 <!-- BEGIN: Page Vendor JS-->
@@ -43,4 +51,16 @@
 <!-- BEGIN: Page JS-->
 <script src="../../../app-assets/js/scripts/pages/appointment.js"></script>
 <!-- END: Page JS-->
+
+
+<!-- BEGIN: Page JS-->
+<script src="../../../app-assets/js/scripts/pages/ecommerce-product-details.js"></script>
+<!-- END: Page JS-->
+
+<!-- BEGIN: Page JS-->
+<script src="../../../app-assets/js/scripts/pages/ecommerce-cart.js"></script>
+<script src="../../../app-assets/js/scripts/pages/content-panel-sidebar.js"></script>
+<script src="../../../app-assets/js/scripts/pages/ecommerce-product-shop.js"></script>
+<!-- END: Page JS-->
+
 @yield('page-js')

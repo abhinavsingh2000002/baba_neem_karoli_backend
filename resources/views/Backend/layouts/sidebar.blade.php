@@ -39,6 +39,9 @@
                     </li>
                 </ul>
             </li>
+            <li class=" nav-item"><a href="{{Route('distributor_product.index')}}"><i class="fa fa-user"></i><span class="menu-title" data-i18n="Report">Order Product</span></a>
+            </li>
+
             <li class=" nav-item"><a href="#"><i class="la la-users"></i><span class="menu-title" data-i18n="Patients">Patients</span></a>
                 <ul class="menu-content">
                     <li><a class="menu-item" href="hospital-patients-list.html"><i></i><span>All Patients</span></a>

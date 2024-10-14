@@ -97,6 +97,17 @@ WE WILL RELEASE FUTURE UPDATES SO IN ORDER TO NOT OVERWRITE YOUR STYLES IT'S BET
     border-radius: 15px; /* Optional: rounded corners, adjust as needed */
 }
 
+.carousel-inner img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
 
+.fixed-size {
+    width: 20px; /* Set your desired fixed width */
+    height: 20px; /* Set your desired fixed height */
+    object-fit: cover; /* Ensures the aspect ratio is maintained while covering the area */
+    /* Use 'contain' instead if you want to show the entire image without cropping */
+}
 
 

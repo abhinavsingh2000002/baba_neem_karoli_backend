@@ -64,6 +64,12 @@ class AdminOrderController extends Controller
         // dd($result);
         $sno = $params['start'] + 1;
         $data = [];
+        $statusLabels = [
+            0 => 'Failed',
+            1 => 'Pending',
+            2 => 'Confirmed',
+            3 => 'Delivered'
+        ];
        foreach ($result as $key => $obj) {
             $id = $obj->id;
             $Sno = $key + 1;
@@ -76,6 +82,8 @@ class AdminOrderController extends Controller
             $orderFailedDateTime = $obj->order_failed_date . ' ' . $obj->order_failed_time;
             $totalAmount = $obj->total_amount;
 
+            $orderStatus=$obj->order_status;
+            $orderStatus = isset($statusLabels[$orderStatus]) ? $statusLabels[$orderStatus] : 'Unknown';
             // Dropdown for order status
             $orderStatusClass = '';
 
@@ -88,11 +96,9 @@ class AdminOrderController extends Controller
             } elseif ($obj->order_status == 0) {
                 $orderStatusClass = 'bg-danger'; // Failed
             }
-
-            $orderStatus = '<select class="form-control order-status-change ' . $orderStatusClass . '" data-order-id="' . $id . '">
-                                <option value="1" ' . ($obj->order_status == 1 ? 'selected' : '') . '>Pending</option>
+            $orderStatusChange = '<select class="form-control order-status-change ' . $orderStatusClass . '" data-order-id="' . $id . '">
+                                <option> please change status</option>
                                 <option value="2" ' . ($obj->order_status == 2 ? 'selected' : '') . '>Confirmed</option>
-                                <option value="3" ' . ($obj->order_status == 3 ? 'selected' : '') . '>Delivered</option>
                                 <option value="0" ' . ($obj->order_status == 0 ? 'selected' : '') . '>Failed</option>
                             </select>';
 
@@ -120,7 +126,8 @@ class AdminOrderController extends Controller
                 $orderDeliveredDateTime,
                 $orderFailedDateTime,
                 $totalAmount,
-                $orderStatus, // Include dropdown for order status
+                $orderStatus,
+                $orderStatusChange,
                 $actionButtons,
             );
         }

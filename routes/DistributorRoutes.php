@@ -6,6 +6,7 @@ use App\Http\Controllers\DistributorController\ShopProductController;
 use App\Http\Controllers\DistributorController\CartController;
 use App\Http\Controllers\DistributorController\OrderPlacedController;
 use App\Http\Controllers\DistributorController\DistributorBillController;
+use App\Http\Controllers\DistributorController\DistributorCredController;
 
 
 
@@ -40,14 +41,19 @@ Route::middleware(DistrubutorMiddleware::class)->group(function(){
     });
     // Route for  Order Placed By the distributors End---------------------------------------
 
-      // Route for Order Placed  By the distributors Start---------------------------------------
+    // Route for Order Placed  By the distributors Start---------------------------------------
       Route::prefix('bills')->group(function(){
         Route::get('index',[DistributorBillController::class,'index'])->name('bills.index');
        Route::post('listing',[DistributorBillController::class,'listing'])->name('bills.listing');
        Route::get('billDetail/{id}',[DistributorBillController::class,'billDetail',])->name('bills.billDetail');
        Route::get('invoicePdf/{id}',[DistributorBillController::class,'invoicePdf',])->name('bills.invoicePdf');
-    //    Route::post('listing',[DistributorBillController::class,'listing',])->name('bills.listing');
-       // Route::get('delete',[DistributorBillController::class,'delete',])->name('cart.delete');
    });
    // Route for  Order Placed By the distributors End---------------------------------------
+
+    // Route for Distribor Cred Start------------------------------------------------------
+        Route::prefix('distributor_cred')->group(function(){
+            Route::get('index',[DistributorCredController::class,'index'])->name('distributor_cred.index');
+            Route::get('listing',[DistributorCredController::class,'listing'])->name('distributor_cred.listing');
+        });
+    // Route for Distribor Cred End------------------------------------------------------
 });

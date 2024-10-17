@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\DriverTask;
 use App\Models\Order;
+use App\Models\OrderDetail;
+use App\Models\Cred;
 use DB;
 use Carbon\Carbon;
 
@@ -43,12 +45,11 @@ class DriverTaskController extends Controller
                     OR driver_tasks.order_no LIKE '%$searchValue%')";
         }
 
-            $sql = "SELECT driver_tasks.*,users.name,users.image_path
-            FROM driver_tasks
-            JOIN users ON driver_tasks.user_id = users.id
-            WHERE driver_tasks.driver_id = " . Auth::user()->id . "
-            AND users.status = 1 $filter $where";
-
+        $sql = "SELECT driver_tasks.*,users.name,users.image_path
+        FROM driver_tasks
+        JOIN users ON driver_tasks.user_id = users.id
+        WHERE driver_tasks.driver_id = " . Auth::user()->id . "
+        AND users.status = 1 $filter $where";
 
         $sqlTot = $sql;
         $sqlRec = $sql . " ORDER BY driver_tasks.id DESC LIMIT " . $params['start'] . ", " . $params['length'];
@@ -63,6 +64,7 @@ class DriverTaskController extends Controller
             $distributorName=$obj->name;
             $distributorImage=$obj->image_path;
             $actionButtons ='';
+            $credInput='';
             if ($obj->status == 0) {
                 $status = '<span style="color:orange;">Pending</span>';
                 $actionButtons .= '
@@ -74,9 +76,14 @@ class DriverTaskController extends Controller
                  onclick="toggleTaskApproval(' . $id . ')">
                  <i class="fas fa-check"></i>
                  </a>';
+                 $credInput .= '
+                 <div class="form-group">
+                     <input type="text" id="cred_out" class="form-control form-control-sm" placeholder="Out" required style="width: 100px;">
+                 </div>';
             } else {
                 $status = '<span style="color:green;">Approved</span>';
             }
+
             $taskAllotedDatetime=$obj->task_alloted_date .' '.$obj->task_alloted_time;
             $taskCompletedDatetime=$obj->task_completed_date .' '.$obj->task_completed_time;
 
@@ -99,6 +106,7 @@ class DriverTaskController extends Controller
                 $taskAllotedDatetime,
                 $taskCompletedDatetime,
                 $status,
+                $credInput,
                 $actionButtons,
             );
         }
@@ -114,32 +122,42 @@ class DriverTaskController extends Controller
 
     public function approve(Request $request)
     {
-        // dd($request);
         $driver_task=DriverTask::findOrFail($request->task_id);
-        // dd($driver_task);
+        $all_orders=OrderDetail::where('order_id',$driver_task->order_id)->get();
+        $totalbox=0;
+        foreach($all_orders as $order)
+        {
+            $totalbox+=$order->product_quantity;
+        }
+        $totalbox = floor($totalbox);
         if($driver_task)
         {
             $driver_task->status=1;
+            $driver_task->task_completed_date=Carbon::now()->toDateString();
+            $driver_task->task_completed_time=Carbon::now()->toTImeString();
             $driver_task->save();
             $order=Order::findOrFail($driver_task->order_id);
-            $order->order_status=2;
+            $order->order_status=3;
             $order->order_deliverd_date=Carbon::now()->toDateString();
             $order->order_deliverd_time=Carbon::now()->toTImeString();
             $order->save();
-
+            $cred=new Cred();
+            $cred->cred_in=$totalbox;
+            $cred->cred_out=$request->cred_out;
+            $cred->date=Carbon::now()->toDateString();
+            $cred->time=Carbon::now()->toTImeString();
+            $cred->driver_id=$driver_task->driver_id;
+            $cred->user_id=$driver_task->user_id;
+            $cred->save();
             return response()->json(['success'=>$order]);
         }
     }
 
     public function detailListing(Request $request,$id)
     {
-        $all_orders=DriverTask::join('order_details','driver_tasks.order_id','=','order_details.order_id')->where('driver_tasks.id',$id)->get();
-        return view('Driver.Task.driver_task_detail_listing')->with(['driver_task'=>$all_orders]);
+        $driver_task=DriverTask::findOrFail($id);
+        $order=Order::join('users','orders.user_id','=','users.id')->where('orders.id',$driver_task->order_id)->first();
+        $orderDetail=DriverTask::join('order_details','driver_tasks.order_id','=','order_details.order_id')->where('driver_tasks.id',$id)->get();
+        return view('Driver.Task.driver_task_detail_listing')->with(['orderDetail'=>$orderDetail,'order'=>$order]);
     }
-
-    // public function detailListing($id)
-    // {
-
-        // dd($all_orders);
-    // }
 }

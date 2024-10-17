@@ -1,6 +1,6 @@
 @extends('Backend.layouts.master')
 @section('title')
-    TasK Listing
+    Cred Listing
 @endsection
 @section('page-content')
     <!-- BEGIN: Content-->
@@ -15,9 +15,9 @@
                             <ol class="breadcrumb">
                                 <li class="breadcrumb-item"><a href="index.html">Home</a>
                                 </li>
-                                <li class="breadcrumb-item"><a href="#">Task</a>
+                                <li class="breadcrumb-item"><a href="#">Cred</a>
                                 </li>
-                                <li class="breadcrumb-item active">All Task
+                                <li class="breadcrumb-item active">All Cred
                                 </li>
                             </ol>
                         </div>
@@ -43,18 +43,15 @@
                                 <!-- datatable start -->
                                 <div class="table-responsive">
                                     <div id="button-container"></div>
-                                    <table id="task_list" class="table">
+                                    <table id="cred_list" class="table">
                                         <thead>
                                             <tr>
                                                 <th>S no</th>
-                                                <th>Order No</th>
                                                 <th>Distributor Name</th>
                                                 <th>Distributor Image</th>
-                                                <th>Task Alloted Date&Time</th>
-                                                <th>Task Completed Date&Time</th>
-                                                <th>Status</th>
+                                                <th>Cred Date & Time</th>
+                                                <th>Cred In</th>
                                                 <th>Cred Out</th>
-                                                <th>Action Button</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -76,50 +73,19 @@
     <script>
         function loadData() {
             // Initialize DataTable
-            dataTable = $('#task_list').DataTable({
+            dataTable = $('#cred_list').DataTable({
                 "processing": true,
                 "serverSide": true,
                 "lengthMenu": [10, 50, 100, 500, 1000],
                 "ajax": {
-                    "url": "{{ Route('driver_task.listing') }}",
+                    "url": "{{ Route('driver_cred.listing') }}",
                     "type": "GET",
                     "data": function(d) {
                     }
                 }
             });
+            $("#button-container").html('<a href="{{ route('driver_cred.add') }}" id="custom-button" class="btn btn-primary mb-2">Add New +</a>');
         }
         loadData();
     </script>
-
-<script>
-    function toggleTaskApproval(taskId) {
-        if(confirm('Are you sure you want to approve this task?')) {
-            var cred_out=$('#cred_out').val();
-            if (!cred_out) {
-                alert('Please enter the Cred Out before approving the task.');
-                    return;
-            }
-            $.ajax({
-                url: "{{ route('driver_task.approve') }}",
-                method: "POST",
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    task_id: taskId,
-                    cred_out:cred_out,
-                },
-                success: function(response) {
-                    if(response.success) {
-                        alert('Task approved successfully!');
-                        location.reload();
-                    } else {
-                        alert('Failed to approve task.');
-                    }
-                },
-                error: function() {
-                    alert('An error occurred while approving the task.');
-                }
-            });
-        }
-    }
-</script>
 @endsection

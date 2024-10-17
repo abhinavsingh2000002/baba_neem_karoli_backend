@@ -56,6 +56,7 @@
                                                 <th>Order Failed Date&Time</th>
                                                 <th>Amount</th>
                                                 <th>Order Status</th>
+                                                <th>Order Status Change</th>
                                                 <th>Action Button</th>
                                             </tr>
                                         </thead>

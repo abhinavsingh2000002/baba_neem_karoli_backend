@@ -9,6 +9,8 @@ use App\Http\Controllers\AdminController\MapProductController;
 use App\Http\Controllers\AdminController\AdminOrderController;
 use App\Http\Controllers\AdminController\AdminBillController;
 use App\Http\Controllers\AdminController\AdminDriverTaskController;
+use App\Http\Controllers\AdminController\AdminCredController;
+
 
 
 Route::middleware(AdminMiddleware::class)->group(function(){
@@ -98,4 +100,16 @@ Route::middleware(AdminMiddleware::class)->group(function(){
         Route::post('update{id}',[AdminDriverTaskController::class,'update'])->name('admin_driver_task.update');
     });
     // Driver Task Routes End----------------------------------------------------------------------------------------
+
+
+     // Driver Task Routes Start--------------------------------------------------------------------------------------
+     Route::prefix('admin_cred')->group(function(){
+        Route::get('index',[AdminCredController::class,'index'])->name('admin_cred.index');
+        Route::get('listing',[AdminCredController::class,'listing'])->name('admin_cred.listing');
+    });
+    // Driver Task Routes End----------------------------------------------------------------------------------------
+
+
+
+
 });

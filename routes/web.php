@@ -26,3 +26,4 @@ Route::middleware('auth')->group(function () {
 require __DIR__.'/auth.php';
 require __DIR__.'/AdminRoutes.php';
 require __DIR__.'/DistributorRoutes.php';
+require __DIR__.'/DriverRoutes.php';

@@ -295,9 +295,11 @@ function deleteCartProduct(cartId){
             success:function(response){
                 if(response.failed){
                     alert(response.failed);
+                    window.location.href = '/distributor_product/index';
                 }
                 else{
                     alert(response.success);
+                    window.location.href = '/dashboard';
                 }
             },
             error:function(xhr,status,error){
@@ -309,7 +311,12 @@ function deleteCartProduct(cartId){
 
     $(document).on('click','#placeOrder',function(e){
         e.preventDefault();
-        placeOrder();
+        let userConfirmed = confirm("Are you sure you want to place the order?");
+        if (userConfirmed) {
+            placeOrder();
+        } else {
+            alert("Order not placed");
+        }
     });
 
 </script>

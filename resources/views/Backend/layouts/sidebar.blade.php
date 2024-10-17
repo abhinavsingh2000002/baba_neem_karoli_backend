@@ -1,42 +1,139 @@
  <!-- BEGIN: Main Menu-->
 
- <div class="main-menu menu-fixed menu-light menu-accordion    menu-shadow " data-scroll-to-active="true">
+ <div class="main-menu menu-fixed menu-light menu-accordion menu-shadow" data-scroll-to-active="true">
     <div class="main-menu-content">
         <ul class="navigation navigation-main" id="main-menu-navigation" data-menu="menu-navigation">
-            <li class="active"><a href="/dashboard"><i class="fa fa-home"></i><span class="menu-title" data-i18n="Dashboard Hospital">Dashboard Hospital</span></a>
+            <li class="{{ Request::is('dashboard') ? 'active' : '' }}">
+                <a href="/dashboard">
+                    <i class="fa fa-home"></i>
+                    <span class="menu-title" data-i18n="Dashboard Hospital">Dashboard</span>
+                </a>
             </li>
-            @if(Auth::user()->role_id==1)
-            <li class=" navigation-header"><span data-i18n="Professional">Professional</span><i class="la la-ellipsis-h" data-toggle="tooltip" data-placement="right" data-original-title="Professional"></i>
+
+            @if(Auth::user()->role_id == 1)
+            <li class="navigation-header">
+                <span data-i18n="Professional">Professional</span>
+                <i class="la la-ellipsis-h" data-toggle="tooltip" data-placement="right" data-original-title="Professional"></i>
             </li>
-            <li class=" nav-item"><a href="{{Route('distributor.index')}}"><i class="fa fa-user"></i><span class="menu-title" data-i18n="Report">Distributor</span></a>
+            <li class="nav-item {{ Request::is('distributor*') ? 'active' : '' }}">
+                <a href="{{ Route('distributor.index') }}">
+                    <i class="fa fa-user"></i>
+                    <span class="menu-title" data-i18n="Report">Distributor</span>
+                </a>
             </li>
-            <li class=" nav-item"><a href="{{Route('driver.index')}}"><i class="fa fa-car"></i><span class="menu-title" data-i18n="Report">Driver</span></a>
+            <li class="nav-item {{ Request::is('driver*') ? 'active' : '' }}">
+                <a href="{{ Route('driver.index') }}">
+                    <i class="fa fa-car"></i>
+                    <span class="menu-title" data-i18n="Report">Driver</span>
+                </a>
             </li>
-            <li class=" nav-item"><a href="#"><i class="fa fa-box"></i><span class="menu-title" data-i18n="Appointment">Product</span></a>
+            <li class="nav-item {{ Request::is('product*') || Request::is('map_product_price*') ? 'active' : '' }}">
+                <a href="#">
+                    <i class="fa fa-box"></i>
+                    <span class="menu-title" data-i18n="Appointment">Product</span>
+                </a>
                 <ul class="menu-content">
-                    <li><a class="menu-item" href="{{Route('product.index')}}"><i></i><span>Product</span></a>
+                    <li class="{{ Request::is('product*') ? 'active' : '' }}">
+                        <a class="menu-item" href="{{ Route('product.index') }}">
+                            <i></i><span>Product</span>
+                        </a>
                     </li>
-                    <li><a class="menu-item" href="{{Route('map_product_price.index')}}"><i></i><span>Product Price</span></a>
+                    <li class="{{ Request::is('map_product_price*') ? 'active' : '' }}">
+                        <a class="menu-item" href="{{ Route('map_product_price.index') }}">
+                            <i></i><span>Product Price</span>
+                        </a>
                     </li>
                 </ul>
             </li>
-            <li class=" nav-item"><a href="#"><i class="fa fa-list-alt"></i><span class="menu-title" data-i18n="Appointment">Order</span></a>
+            <li class="nav-item {{ Request::is('order*') ? 'active' : '' }}">
+                <a href="#">
+                    <i class="fa fa-shopping-cart"></i>
+                    <span class="menu-title" data-i18n="Appointment">Order</span>
+                </a>
                 <ul class="menu-content">
-                    <li><a class="menu-item" href="{{Route('order.index')}}"><i></i><span>Order</span></a>
+                    <li class="{{ Request::is('order*') ? 'active' : '' }}">
+                        <a class="menu-item" href="{{ Route('admin_order.index') }}">
+                            <i></i><span>Order</span>
+                        </a>
                     </li>
-                    <li><a class="menu-item" href="hospital-book-appointment.html"><i></i><span>Book Appointment</span></a>
+                </ul>
+            </li>
+            <li class="nav-item {{ Request::is('bills*') ? 'active' : '' }}">
+                <a href="#">
+                    <i class="fa fa-file-invoice"></i>
+                    <span class="menu-title" data-i18n="Appointment">Bills</span>
+                </a>
+                <ul class="menu-content">
+                    <li class="{{ Request::is('bills*') ? 'active' : '' }}">
+                        <a class="menu-item" href="{{ Route('admin_bills.index') }}">
+                            <i></i><span>Bills</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="nav-item {{ Request::is('admin_driver_task*') ? 'active' : '' }}">
+                <a href="#">
+                <i class="fa fa-clipboard-list"></i>
+                    <span class="menu-title" data-i18n="Appointment">Driver Task</span>
+                </a>
+                <ul class="menu-content">
+                    <li class="{{ Request::is('admin_driver_task.index*') ? 'active' : '' }}">
+                        <a class="menu-item" href="{{ Route('admin_driver_task.index') }}">
+                            <i></i><span>Task</span>
+                        </a>
+                    </li>
+                    <li class="{{ Request::is('admin_driver_task.add*') ? 'active' : '' }}">
+                        <a class="menu-item" href="{{ Route('admin_driver_task.add') }}">
+                            <i></i><span>Add Task</span>
+                        </a>
                     </li>
                 </ul>
             </li>
             @endif
-            @if(Auth::user()->role_id=='2')
-            <li class=" nav-item"><a href="#"><i class="fas fa-shopping-cart"></i><span class="menu-title" data-i18n="Patients">Product</span></a>
+
+            @if(Auth::user()->role_id == 2)
+            <li class="nav-item {{ Request::is('distributor_product*') || Request::is('cart*') || Request::is('order*') ? 'active' : '' }}">
+                <a href="#">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="menu-title" data-i18n="Patients">Product</span>
+                </a>
                 <ul class="menu-content">
-                    <li><a class="menu-item" href="{{Route('distributor_product.index')}}"><i></i><span>Order Products</span></a>
+                    <li class="{{ Request::is('distributor_product*') ? 'active' : '' }}">
+                        <a class="menu-item" href="{{ Route('distributor_product.index') }}">
+                            <i></i><span>Order Products</span>
+                        </a>
                     </li>
-                    <li><a class="menu-item" href="{{ROute('cart.index')}}"><i></i><span>Shopping Cart</span></a>
+                    <li class="{{ Request::is('cart*') ? 'active' : '' }}">
+                        <a class="menu-item" href="{{ Route('cart.index') }}">
+                            <i></i><span>Shopping Cart</span>
+                        </a>
                     </li>
-                    <li><a class="menu-item" href="{{Route('order.index')}}"><i></i><span>Placed Order</span></a>
+                    <li class="{{ Request::is('order*') ? 'active' : '' }}">
+                        <a class="menu-item" href="{{ Route('order.index') }}">
+                            <i></i><span>Placed Order</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="nav-item {{ Request::is('bills*') ? 'active' : '' }}">
+                <a href="{{ Route('bills.index') }}">
+                    <i class="fa fa-file-invoice"></i>
+                    <span class="menu-title" data-i18n="Report">Bills</span>
+                </a>
+            </li>
+            @endif
+            @if(Auth::user()->role_id == 3)
+            <li class="nav-item {{ Request::is('driver_task*') || Request::is('cart*') || Request::is('order*') ? 'active' : '' }}">
+                <a href="#">
+                    <i class="fa fa-clipboard-list"></i>
+                    <span class="menu-title" data-i18n="Patients">Task</span>
+                </a>
+                <ul class="menu-content">
+                    <li class="{{ Request::is('driver_task*') ? 'active' : '' }}">
+                        <a class="menu-item" href="{{ Route('driver_task.index') }}">
+                            <i></i><span>Alloted Task</span>
+                        </a>
                     </li>
                 </ul>
             </li>

@@ -1,6 +1,6 @@
 @extends('Backend.layouts.master')
 @section('title')
-    Orders
+    Bills
 @endsection
 @section('page-content')
     <!-- BEGIN: Content-->
@@ -9,15 +9,15 @@
         <div class="content-wrapper">
             <div class="content-header row">
                 <div class="content-header-left col-md-6 col-12 mb-2">
-                    <h3 class="content-header-title">Orders List</h3>
+                    <h3 class="content-header-title">Bills List</h3>
                     <div class="row breadcrumbs-top">
                         <div class="breadcrumb-wrapper col-12">
                             <ol class="breadcrumb">
                                 <li class="breadcrumb-item"><a href="index.html">Home</a>
                                 </li>
-                                <li class="breadcrumb-item"><a href="#">Orders</a>
+                                <li class="breadcrumb-item"><a href="#">Bills</a>
                                 </li>
-                                <li class="breadcrumb-item active">All Orders
+                                <li class="breadcrumb-item active">All Bills
                                 </li>
                             </ol>
                         </div>
@@ -47,15 +47,11 @@
                                         <thead>
                                             <tr>
                                                 <th>S NO</th>
+                                                <th>Bill Number</th>
                                                 <th>Order Number</th>
                                                 <th>Distributor Name</th>
                                                 <th>Distributor Image</th>
-                                                <th>Order Date&Time</th>
-                                                <th>Order Confirm Date&Time</th>
-                                                <th>Order delivered Date&TIme</th>
-                                                <th>Order Failed Date&Time</th>
                                                 <th>Amount</th>
-                                                <th>Order Status</th>
                                                 <th>Action Button</th>
                                             </tr>
                                         </thead>
@@ -84,60 +80,12 @@
                 "serverSide": true,
                 "lengthMenu": [10, 50, 100, 500, 1000],
                 "ajax": {
-                    "url": "{{ Route('admin_order.listing') }}",
+                    "url": "{{ Route('admin_bills.listing') }}",
                     "type": "GET",
                     "data": function(d) {}
                 }
             });
-
-            var ancha_id = $('#ancha_id').val();
-            $("#button-container").html(
-                '<a href="{{ route('product.add') }}" id="custom-button" class="btn btn-primary mb-2">Add New +</a>');
         }
         loadData();
     </script>
-    <script>
-
-    $(document).on('change', '.order-status-change', function() {
-    var orderId = $(this).data('order-id');
-    var newStatus = $(this).val();
-    var row = $(this).closest('tr');
-    var statusCell = $(this).closest('td'); // Get the specific cell containing the status
-
-    // AJAX call to update the order status
-    $.ajax({
-        url: '{{ route("admin_order.updateStatus") }}',
-        method: 'POST',
-        data: {
-            _token: '{{ csrf_token() }}',
-            order_id: orderId,
-            order_status: newStatus
-        },
-        success: function(response) {
-            if (response.order_update_status) {
-                alert('Order status updated successfully!');
-
-                // Reset the status cell classes
-                $(statusCell).find('.order-status-change').removeClass('bg-warning bg-info bg-success bg-danger');
-
-                // Change the color of the dropdown based on the new status
-                if (newStatus == 1) {
-                    $(statusCell).find('.order-status-change').addClass('bg-warning'); // Pending
-                } else if (newStatus == 2) {
-                    $(statusCell).find('.order-status-change').addClass('bg-info'); // Confirmed
-                } else if (newStatus == 3) {
-                    $(statusCell).find('.order-status-change').addClass('bg-success'); // Delivered
-                } else if (newStatus == 0) {
-                    $(statusCell).find('.order-status-change').addClass('bg-danger'); // Failed
-                }
-            } else {
-                alert('Failed to update order status.');
-            }
-        },
-        error: function(xhr, status, error) {
-            alert('Error updating order status.');
-        }
-    });
-});
-</script>
 @endsection

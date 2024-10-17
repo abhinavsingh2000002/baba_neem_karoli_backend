@@ -13,12 +13,17 @@ return new class extends Migration
     {
         Schema::create('driver_tasks', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('order_id');
-            $table->foreign('order_id')->references('id')->on('oders')->onDelete('cascade')->onUpdate('cascade')->nullable();
+            $table->unsignedBigInteger('order_id')->unique();
+            $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade')->onUpdate('cascade')->nullable();
+            $table->string('order_no',100)->unique();
+            $table->unsignedBigInteger('driver_id');
+            $table->foreign('driver_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade')->nullable();
             $table->unsignedBigInteger('user_id');
+            $table->date('task_alloted_date');
+            $table->time('task_alloted_time');
+            $table->date('task_completed_date')->nullable();
+            $table->time('task_completed_time')->nullable();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade')->nullable();
-            $table->unsignedBigInteger('product_id');
-            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade')->onUpdate('cascade')->nullable();
             $table->boolean('status')->default('0')->comment('0:pending,1:approved');
             $table->timestamps();
         });

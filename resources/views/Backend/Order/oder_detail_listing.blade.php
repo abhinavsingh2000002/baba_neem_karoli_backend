@@ -65,8 +65,8 @@ Order Detail
                         </div>
                         <div class="col-sm-6 col-12 text-center text-sm-left user-info">
                             <ul class="px-0 list-unstyled">
-                                <li class="text-bold-800">{{Auth::user()->name}}</li>
-                                <li class="address">{{Auth::user()->address}}</li> <!-- Apply address class here -->
+                                <li class="text-bold-800">{{$order->name}}</li>
+                                <li class="address">{{$order->address}}</li> <!-- Apply address class here -->
                             </ul>
                         </div>
                         <div class="col-sm-6 col-12 text-center text-sm-right">

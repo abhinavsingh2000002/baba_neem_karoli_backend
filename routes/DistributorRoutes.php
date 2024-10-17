@@ -5,6 +5,7 @@ use App\Http\Middleware\DistrubutorMiddleware;
 use App\Http\Controllers\DistributorController\ShopProductController;
 use App\Http\Controllers\DistributorController\CartController;
 use App\Http\Controllers\DistributorController\OrderPlacedController;
+use App\Http\Controllers\DistributorController\DistributorBillController;
 
 
 
@@ -31,12 +32,22 @@ Route::middleware(DistrubutorMiddleware::class)->group(function(){
 
      // Route for Order Placed  By the distributors Start---------------------------------------
      Route::prefix('order')->group(function(){
-         Route::GET('index',[OrderPlacedController::class,'index'])->name('order.index');
+        Route::GET('index',[OrderPlacedController::class,'index'])->name('order.index');
         Route::GET('orderPlaced',[OrderPlacedController::class,'oderPlaced'])->name('order.orderPlaced');
         Route::POST('listing',[OrderPlacedController::class,'listing',])->name('order.listing');
         Route::GET('listingDetail/{id}',[OrderPlacedController::class,'listingDetail',])->name('order.listingDetail');
         Route::GET('invoicePdf/{id}',[OrderPlacedController::class,'invoicePdf',])->name('order.invoicePdf');
-        // Route::get('delete',[OrderPlacedController::class,'delete',])->name('cart.delete');
     });
     // Route for  Order Placed By the distributors End---------------------------------------
+
+      // Route for Order Placed  By the distributors Start---------------------------------------
+      Route::prefix('bills')->group(function(){
+        Route::get('index',[DistributorBillController::class,'index'])->name('bills.index');
+       Route::post('listing',[DistributorBillController::class,'listing'])->name('bills.listing');
+       Route::get('billDetail/{id}',[DistributorBillController::class,'billDetail',])->name('bills.billDetail');
+       Route::get('invoicePdf/{id}',[DistributorBillController::class,'invoicePdf',])->name('bills.invoicePdf');
+    //    Route::post('listing',[DistributorBillController::class,'listing',])->name('bills.listing');
+       // Route::get('delete',[DistributorBillController::class,'delete',])->name('cart.delete');
+   });
+   // Route for  Order Placed By the distributors End---------------------------------------
 });

@@ -6,7 +6,10 @@ use App\Http\Controllers\AdminController\DistributorController;
 use App\Http\Controllers\AdminController\DriverController;
 use App\Http\Controllers\AdminController\ProductController;
 use App\Http\Controllers\AdminController\MapProductController;
-use App\Http\Controllers\AdminController\OrderController;
+use App\Http\Controllers\AdminController\AdminOrderController;
+use App\Http\Controllers\AdminController\AdminBillController;
+use App\Http\Controllers\AdminController\AdminDriverTaskController;
+
 
 Route::middleware(AdminMiddleware::class)->group(function(){
     // distributor Routes start--------------------------------------------------------------------------
@@ -65,10 +68,34 @@ Route::middleware(AdminMiddleware::class)->group(function(){
     // Map Product Prices Routes End---------------------------------------------------------------------------
 
 
+
     // Order Routes Start--------------------------------------------------------------------------------------
-    Route::prefix('order')->group(function(){
-        Route::get('index',[OrderController::class,'index'])->name('order.index');
-        Route::get('listing',[OrderController::class,'listing'])->name('order.listing');
+    Route::prefix('admin_order')->group(function(){
+        Route::get('index',[AdminOrderController::class,'index'])->name('admin_order.index');
+        Route::get('listing',[AdminOrderController::class,'listing'])->name('admin_order.listing');
+        Route::get('detailListing/{id}',[AdminOrderController::class,'detailListing'])->name('admin_order.detailListing');
+        Route::post('updateStatus',[AdminOrderController::class,'updateStatus'])->name('admin_order.updateStatus');
     });
     // Order Routes End----------------------------------------------------------------------------------------
+
+
+    // Bills Routes Start--------------------------------------------------------------------------------------
+     Route::prefix('admin_bills')->group(function(){
+        Route::get('index',[AdminBillController::class,'index'])->name('admin_bills.index');
+        Route::get('listing',[AdminBillController::class,'listing'])->name('admin_bills.listing');
+        Route::get('billDetail/{id}',[AdminBillController::class,'billDetail'])->name('admin_bills.billDetail');
+        Route::get('invoicePdf/{id}',[AdminBillController::class,'invoicePdf'])->name('admin_bills.invoicePdf');
+    });
+    // Bills Routes End----------------------------------------------------------------------------------------
+
+     // Driver Task Routes Start--------------------------------------------------------------------------------------
+     Route::prefix('admin_driver_task')->group(function(){
+        Route::get('index',[AdminDriverTaskController::class,'index'])->name('admin_driver_task.index');
+        Route::get('listing',[AdminDriverTaskController::class,'listing'])->name('admin_driver_task.listing');
+        Route::get('add',[AdminDriverTaskController::class,'add'])->name('admin_driver_task.add');
+        Route::post('create',[AdminDriverTaskController::class,'add'])->name('admin_driver_task.create');
+        Route::get('edit/{id}',[AdminDriverTaskController::class,'edit'])->name('admin_driver_task.edit');
+        Route::post('update{id}',[AdminDriverTaskController::class,'update'])->name('admin_driver_task.update');
+    });
+    // Driver Task Routes End----------------------------------------------------------------------------------------
 });

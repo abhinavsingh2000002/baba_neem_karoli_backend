@@ -70,7 +70,7 @@ class OrderPlacedController extends Controller
                 $orderDetails->order_id=$order->id;
                 $orderDetails->order_no=$order->order_no;
                 $orderDetails->user_id=Auth::user()->id;
-;                $orderDetails->product_no=$total_order_one->product_no;
+                $orderDetails->product_no=$total_order_one->product_no;
                 $orderDetails->product_name=$total_order_one->product_name;
                 $orderDetails->product_no=$total_order_one->product_no;
                 $orderDetails->product_name=$total_order_one->product_name;
@@ -132,19 +132,19 @@ class OrderPlacedController extends Controller
 
     public function listingDetail($id)
     {
-        $order=Order::findOrFail($id);
+        $order=Order::select('orders.*','bills.bill_no')->join('bills','orders.id','=','bills.order_id')->where('orders.id',$id)->first();
         if($order){
             $orderDetail=OrderDetail::join('bills','order_details.order_id','bills.order_id')
             ->join('orders','order_details.order_id','=','orders.id')
             ->where('order_details.order_id',$id)->get();
-        }
-        // dd($orderDetail);
-        return view('Distributor.Order.order_detail')->with(['orderDetail'=>$orderDetail]);
     }
+        return view('Distributor.Order.order_detail')->with(['orderDetail'=>$orderDetail,'order'=>$order]);
+    }
+
+
     public function invoicePdf($id)
     {
-        $order = Order::findOrFail($id);
-
+        $order=Order::select('orders.*','bills.bill_no')->join('bills','orders.id','=','bills.order_id')->where('orders.id',$id)->first();
         $orderDetail = OrderDetail::join('bills', 'order_details.order_id', 'bills.order_id')
             ->join('orders', 'order_details.order_id', '=', 'orders.id')
             ->where('order_details.order_id', $id)
@@ -157,6 +157,6 @@ class OrderPlacedController extends Controller
         ]);
 
         // Download the PDF file
-        return $pdf->download('invoice_' . $order->id . '.pdf');
+        return $pdf->download('invoice_' . $order->order_no . '.pdf');
     }
 }

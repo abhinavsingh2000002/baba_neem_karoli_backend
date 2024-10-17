@@ -13,12 +13,12 @@ WE WILL RELEASE FUTURE UPDATES SO IN ORDER TO NOT OVERWRITE YOUR STYLES IT'S BET
     background-color: #ffffff; /* White background for the card */
     border-radius: 10px; /* Rounded corners */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
-    transition: transform 0.2s; /* Smooth hover effect */
+    /* transition: transform 0.2s; Smooth hover effect */
 }
 
-.card:hover {
-    transform: scale(1.02); /* Slightly enlarge on hover */
-}
+/* .card:hover {
+    transform: scale(1.02);               Slightly enlarge on hover
+} */
 
 .patient-img {
     width: 120px; /* Set a fixed size for the image */
@@ -153,6 +153,5 @@ WE WILL RELEASE FUTURE UPDATES SO IN ORDER TO NOT OVERWRITE YOUR STYLES IT'S BET
     overflow: hidden; /* Prevents overflow */
     text-overflow: ellipsis; /* Adds ellipsis if needed */
 }
-
 
 

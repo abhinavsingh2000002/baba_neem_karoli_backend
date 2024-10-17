@@ -145,7 +145,6 @@
                         <th class="item-description">Item & Description</th> <!-- Adjusted class for item description -->
                         <th>Weight</th>
                         <th>Quantity</th>
-                        <th>Item per Cred</th>
                         <th>Amount</th>
                     </tr>
                 </thead>

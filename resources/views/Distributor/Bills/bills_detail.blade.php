@@ -1,6 +1,6 @@
 @extends('Backend.layouts.master')
 @section('title')
-Order Detail
+Bill Detail
 @endsection
 @section('page-content')
  <!-- BEGIN: Content-->
@@ -88,7 +88,7 @@ Order Detail
                                             <th>Item & Description</th>
                                             <th class="text-right">Weight</th>
                                             <th class="text-right">Quantity</th>
-                                            <th class="text-right">Item per Cred</th>
+                                            <th class="text-right">Item Per Cred</th>
                                             <th class="text-right">Amount</th>
                                         </tr>
                                     </thead>
@@ -161,14 +161,14 @@ Order Detail
                                 <h6>Terms & Condition</h6>
                                 <p>Test pilot isn't always the healthiest business.</p>
                             </div>
-                            {{-- <div class="col-sm-5 col-12 text-center">
+                            <div class="col-sm-5 col-12 text-center">
                                 <button type="button" class="btn btn-info btn-print btn-lg my-1"><i class="la la-paper-plane-o mr-50"></i>
                                     Print
                                     Invoice</button>
-                                <a href="{{Route('order.invoicePdf',$order->id)}}" class="btn btn-info  btn-lg my-1" style="color: white;">
+                                <a href="{{Route('bills.invoicePdf',$order->id)}}" class="btn btn-info  btn-lg my-1" style="color: white;">
                                     <i class="la la-paper-plane-o mr-50"></i> Download PDF
                                 </a>
-                            </div> --}}
+                            </div>
                         </div>
                     </div>
                     <!-- Invoice Footer -->

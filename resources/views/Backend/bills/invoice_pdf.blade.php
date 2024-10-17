@@ -132,8 +132,8 @@
 
         <div class="customer-details">
             <h3>Bill To</h3>
-            <p><strong>{{Auth::user()->name}}</strong></p>
-            <p class="address">{{Auth::user()->address}}</p>
+            <p><strong>{{$order->name}}</strong></p>
+            <p class="address">{{$order->address}}</p>
         </div>
 
         <div class="items-details">
@@ -145,7 +145,6 @@
                         <th class="item-description">Item & Description</th> <!-- Adjusted class for item description -->
                         <th>Weight</th>
                         <th>Quantity</th>
-                        <th>Item per Cred</th>
                         <th>Amount</th>
                     </tr>
                 </thead>

@@ -16,8 +16,9 @@ class AdminOrderController extends Controller
         return view('Backend.Order.order_listing');
     }
 
-    public function listing()
+    public function listing(Request $request)
     {
+
         $columns = array(
             0 => 'SNo',
             1 => 'Order Number',
@@ -37,31 +38,33 @@ class AdminOrderController extends Controller
         $where = "";
         $filter = '';
 
+
         // Handle search input
         if (!empty($params['search']['value'])) {
             $searchValue = $params['search']['value'];
             $where .= " AND (users.name LIKE '%$searchValue%'
-                    OR orders.order_no LIKE '%$searchValue%'
-                    OR orders.order_date LIKE '%$searchValue%'
-                      OR orders.order_time LIKE '%$searchValue%'
-                        OR orders.order_confirm_date LIKE '%$searchValue%'
-                      OR orders.order_confirm_time LIKE '%$searchValue%'
-                        OR orders.order_deliverd_date LIKE '%$searchValue%'
-                      OR orders.order_deliverd_time LIKE '%$searchValue%'
-                       OR orders.order_failed_date LIKE '%$searchValue%'
-                      OR orders.order_failed_time LIKE '%$searchValue%'
-                     OR orders.total_amount LIKE '%$searchValue%')
-                      OR orders.order_status LIKE '%$searchValue%')";
+                OR orders.order_no LIKE '%$searchValue%'
+                OR orders.order_date LIKE '%$searchValue%'
+                OR orders.order_time LIKE '%$searchValue%'
+                OR orders.order_confirm_date LIKE '%$searchValue%'
+                OR orders.order_confirm_time LIKE '%$searchValue%'
+                OR orders.order_deliverd_date LIKE '%$searchValue%'
+                OR orders.order_deliverd_time LIKE '%$searchValue%'
+                OR orders.order_failed_date LIKE '%$searchValue%'
+                OR orders.order_failed_time LIKE '%$searchValue%'
+                OR orders.total_amount LIKE '%$searchValue%'
+                OR orders.order_status LIKE '%$searchValue%')";
+
         }
-
+        if (!empty($request->date)) {
+            $filter .= " AND DATE(orders.order_date) = '" . date('Y-m-d', strtotime($request->date)) . "'";
+        }
         $sql = "SELECT orders.*,users.name, users.image_path FROM orders,users WHERE orders.user_id=users.id AND users.status=1 $filter $where";
-
         $sqlTot = $sql;
         $sqlRec = $sql . " ORDER BY orders.id DESC LIMIT " . $params['start'] . ", " . $params['length'];
 
         $result = DB::select($sqlRec);
         $totalRecords = count(DB::select($sqlTot));
-        // dd($result);
         $sno = $params['start'] + 1;
         $data = [];
         $statusLabels = [
@@ -70,6 +73,7 @@ class AdminOrderController extends Controller
             2 => 'Confirmed',
             3 => 'Delivered'
         ];
+
        foreach ($result as $key => $obj) {
             $id = $obj->id;
             $Sno = $key + 1;
@@ -81,27 +85,17 @@ class AdminOrderController extends Controller
             $orderDeliveredDateTime = $obj->order_deliverd_date . ' ' . $obj->order_deliverd_time;
             $orderFailedDateTime = $obj->order_failed_date . ' ' . $obj->order_failed_time;
             $totalAmount = $obj->total_amount;
-
             $orderStatus=$obj->order_status;
             $orderStatus = isset($statusLabels[$orderStatus]) ? $statusLabels[$orderStatus] : 'Unknown';
-            // Dropdown for order status
-            $orderStatusClass = '';
-
-            if ($obj->order_status == 1) {
-                $orderStatusClass = 'bg-warning'; // Pending
-            } elseif ($obj->order_status == 2) {
-                $orderStatusClass = 'bg-info'; // Confirmed
-            } elseif ($obj->order_status == 3) {
-                $orderStatusClass = 'bg-success'; // Delivered
-            } elseif ($obj->order_status == 0) {
-                $orderStatusClass = 'bg-danger'; // Failed
+            $orderStatusChange='';
+            $actionButtons='';
+            if($obj->order_status=='1'){
+                $orderStatusChange .= '
+                <a class="btn btn-sm btn-success order-status-change ml-3" data-order_status="2" data-id="'.$id.'" title="Approve Order"><i class="fas fa-check"></i></a>
+                <a class="btn btn-sm btn-danger order-status-change" data-order_status="0" data-id="'.$id.'" title="Reject Order">
+                    <i class="fas fa-times"></i>
+                </a>';
             }
-            $orderStatusChange = '<select class="form-control order-status-change ' . $orderStatusClass . '" data-order-id="' . $id . '">
-                                <option> please change status</option>
-                                <option value="2" ' . ($obj->order_status == 2 ? 'selected' : '') . '>Confirmed</option>
-                                <option value="0" ' . ($obj->order_status == 0 ? 'selected' : '') . '>Failed</option>
-                            </select>';
-
 
             if (!empty($distributorImage) && file_exists(public_path($distributorImage))) {
                 $imageUrl = asset($distributorImage); // Path to user's image
@@ -111,10 +105,16 @@ class AdminOrderController extends Controller
 
             $imageHtml = '<img src="' . $imageUrl . '" alt="User Image" width="70" height="70" />';
 
-            $actionButtons = '
-                <a class="btn btn-sm btn-info" href="' . route('admin_order.detailListing', $id) . '" title="View Details">
+            $actionButtons .= '
+                <a class="btn btn-sm btn-info ml-2" href="' . route('admin_order.detailListing', $id) . '" title="View Details">
                     <i class="fas fa-eye"></i>
                 </a>';
+                if($obj->order_status=='1'){
+                    $actionButtons .=
+                          '<a class="btn btn-sm btn-warning" href="' . route('admin_order.detailListing', $id) . '" title="Edit Order">
+                        <i class="fas fa-edit"></i>
+                    </a>';
+                }
 
             $data[] = array(
                 $Sno,
@@ -144,6 +144,7 @@ class AdminOrderController extends Controller
 
     public function updateStatus(Request $request)
     {
+        // dd($request);
         $order_update_status=Order::findOrFail($request->order_id);
         $order_update_status->order_status=$request->order_status;
         if($request->order_status=='0'){

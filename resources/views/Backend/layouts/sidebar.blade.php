@@ -96,6 +96,18 @@
                             <span class="menu-title" data-i18n="Report">CRED</span>
                         </a>
                     </li>
+                    <li class="nav-item {{ Request::is('admin_ledger*') ? 'active' : '' }}">
+                        <a href="{{ route('admin_ledger.index') }}">
+                            <i class="fa fa-book"></i>
+                            <span class="menu-title" data-i18n="Report">Ledger</span>
+                        </a>
+                    </li>
+                    <li class="nav-item {{ Request::is('admin_order_report*') ? 'active' : '' }}">
+                        <a href="{{ route('admin_order_report.index') }}">
+                            <i class="fa fa-book"></i>
+                            <span class="menu-title" data-i18n="Report">Report</span>
+                        </a>
+                    </li>
                     @endif
 
                     @if(Auth::user()->role_id == 2)

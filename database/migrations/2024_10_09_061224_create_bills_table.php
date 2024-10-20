@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('bills', function (Blueprint $table) {
             $table->id();
             $table->string('bill_no',100)->unique();
+            $table->date('bill_date');
+            $table->time('bill_time');
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade')->nullable();
             $table->unsignedBigInteger('order_id');

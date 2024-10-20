@@ -59,6 +59,8 @@ class OrderPlacedController extends Controller
             $bill->user_id=Auth::user()->id;
             $bill->order_id=$order->id;
             $bill->order_no=$order->order_no;
+            $bill->bill_date=Carbon::now()->toDateString(); // YYYY-MM-DD format
+            $bill->bill_time=Carbon::now()->toTimeString(); // Will store time in HH:MM:SS format
             $bill->save();
         }
         if($order){

@@ -28,6 +28,11 @@
                                                 </ul>
                                             </div>
                                         @endif
+                                        @if (session('delete'))
+                                        <div class="alert alert-danger text-center">
+                                            {{ session('delete') }}
+                                        </div>
+                                    @endif
                                         <h1 class="mb-3">Map Product Price</h1>
                                         <form action="{{ Route('map_product_price.create') }}" method="POST">
                                             @csrf

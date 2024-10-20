@@ -75,6 +75,13 @@ WE WILL RELEASE FUTURE UPDATES SO IN ORDER TO NOT OVERWRITE YOUR STYLES IT'S BET
     }
 }
 
+    @media (max-width: 414px) { /* Adjusted for smaller devices */
+    #date {
+        margin-top: 45px; /* Adjusts top margin of the date input */
+    }
+}
+
+
 @media (max-width: 576px) {
     .patient-name {
         font-size: 1.2rem; /* Smaller font size for mobile */

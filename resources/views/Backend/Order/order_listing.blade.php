@@ -40,9 +40,13 @@
                     <div class="card">
                         <div class="card-content">
                             <div class="card-body">
+                                 <!-- Date Filter -->
                                 <!-- datatable start -->
                                 <div class="table-responsive">
-                                    <div id="button-container"></div>
+                                        <div id="button-container" class="col-md-2"></div>
+                                        <div class="col-md-2 offset-md-10 mb-2" style="margin-top: -56px;"> <!-- Pushes date filter to the right -->
+                                            <input type="date" id="date" class="form-control">
+                                        </div>
                                     <table id="order_list" class="table">
                                         <thead>
                                             <tr>
@@ -77,17 +81,24 @@
 @endsection
 @section('page-js')
     <script>
+        const today = new Date();
+        // Format the date as YYYY-MM-DD
+        const formattedDate = today.toISOString().split('T')[0];
+        // Set the value of the date input to the current date
+        document.getElementById('date').value = formattedDate;
         // Function to load data into DataTable
         function loadData() {
-            // Initialize DataTable
             dataTable = $('#order_list').DataTable({
+                "scrollX": true,
                 "processing": true,
                 "serverSide": true,
                 "lengthMenu": [10, 50, 100, 500, 1000],
                 "ajax": {
                     "url": "{{ Route('admin_order.listing') }}",
                     "type": "GET",
-                    "data": function(d) {}
+                    "data": function(d) {
+                        d.date = $('#date').val();
+                    }
                 }
             });
 
@@ -96,12 +107,16 @@
                 '<a href="{{ route('product.add') }}" id="custom-button" class="btn btn-primary mb-2">Add New +</a>');
         }
         loadData();
+
+        $('#date').on('change',function(e){
+            dataTable.ajax.reload();
+        });
     </script>
     <script>
 
-    $(document).on('change', '.order-status-change', function() {
-    var orderId = $(this).data('order-id');
-    var newStatus = $(this).val();
+ $(document).on('click', '.order-status-change', function() {
+    var orderId = $(this).data('id');
+    var newStatus = $(this).data('order_status');
     var row = $(this).closest('tr');
     var statusCell = $(this).closest('td'); // Get the specific cell containing the status
 
@@ -117,20 +132,7 @@
         success: function(response) {
             if (response.order_update_status) {
                 alert('Order status updated successfully!');
-
-                // Reset the status cell classes
-                $(statusCell).find('.order-status-change').removeClass('bg-warning bg-info bg-success bg-danger');
-
-                // Change the color of the dropdown based on the new status
-                if (newStatus == 1) {
-                    $(statusCell).find('.order-status-change').addClass('bg-warning'); // Pending
-                } else if (newStatus == 2) {
-                    $(statusCell).find('.order-status-change').addClass('bg-info'); // Confirmed
-                } else if (newStatus == 3) {
-                    $(statusCell).find('.order-status-change').addClass('bg-success'); // Delivered
-                } else if (newStatus == 0) {
-                    $(statusCell).find('.order-status-change').addClass('bg-danger'); // Failed
-                }
+                dataTable.ajax.reload();
             } else {
                 alert('Failed to update order status.');
             }

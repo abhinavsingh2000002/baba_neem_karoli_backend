@@ -39,16 +39,8 @@ class AdminBillController extends Controller
             $searchValue = $params['search']['value'];
             $where .= " AND (users.name LIKE '%$searchValue%'
                     OR orders.order_no LIKE '%$searchValue%'
-                    OR orders.order_date LIKE '%$searchValue%'
-                      OR orders.order_time LIKE '%$searchValue%'
-                        OR orders.order_confirm_date LIKE '%$searchValue%'
-                      OR orders.order_confirm_time LIKE '%$searchValue%'
-                        OR orders.order_deliverd_date LIKE '%$searchValue%'
-                      OR orders.order_deliverd_time LIKE '%$searchValue%'
-                       OR orders.order_failed_date LIKE '%$searchValue%'
-                      OR orders.order_failed_time LIKE '%$searchValue%'
-                     OR orders.total_amount LIKE '%$searchValue%')
-                      OR orders.order_status LIKE '%$searchValue%')";
+                    OR bills.bill_no LIKE '%$searchValue%'
+                      OR orders.total_amount LIKE '%$searchValue%')";
         }
 
         $sql = "SELECT bills.*,users.name,users.image_path,orders.total_amount FROM bills,users,orders WHERE bills.user_id=users.id AND bills.order_id=orders.id AND users.status=1 $filter $where";
@@ -133,7 +125,6 @@ class AdminBillController extends Controller
             ->join('orders', 'order_details.order_id', '=', 'orders.id')
             ->where('order_details.order_id', $id)
             ->get();
-        // dd($order,$orderDetail);
         // Generate PDF
         $pdf = PDF::loadView('Backend.bills.invoice_pdf', [
             'order' => $order,

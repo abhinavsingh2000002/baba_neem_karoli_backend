@@ -10,6 +10,8 @@ use App\Http\Controllers\AdminController\AdminOrderController;
 use App\Http\Controllers\AdminController\AdminBillController;
 use App\Http\Controllers\AdminController\AdminDriverTaskController;
 use App\Http\Controllers\AdminController\AdminCredController;
+use App\Http\Controllers\AdminController\AdminLedgerController;
+use App\Http\Controllers\AdminController\AdminOrderReportController;
 
 
 
@@ -76,6 +78,7 @@ Route::middleware(AdminMiddleware::class)->group(function(){
         Route::get('index',[AdminOrderController::class,'index'])->name('admin_order.index');
         Route::get('listing',[AdminOrderController::class,'listing'])->name('admin_order.listing');
         Route::get('detailListing/{id}',[AdminOrderController::class,'detailListing'])->name('admin_order.detailListing');
+        Route::get('filter',[AdminOrderController::class,'listing'])->name('admin_order.filter');
         Route::post('updateStatus',[AdminOrderController::class,'updateStatus'])->name('admin_order.updateStatus');
     });
     // Order Routes End----------------------------------------------------------------------------------------
@@ -109,7 +112,23 @@ Route::middleware(AdminMiddleware::class)->group(function(){
     });
     // Driver Task Routes End----------------------------------------------------------------------------------------
 
+    // Ledger Routes Start--------------------------------------------------------------------------
+    Route::prefix('admin_ledger')->group(function(){
+        Route::get('index',[AdminLedgerController::class,'index'])->name('admin_ledger.index');
+        Route::get('listing',[AdminLedgerController::class,'listing'])->name('admin_ledger.listing');
+        Route::get('ledgerpdf',[AdminLedgerController::class,'ledgerpdf'])->name('admin_ledger.ledgerpdf');
+        Route::get('ledgerexcel',[AdminLedgerController::class,'ledgerexcel'])->name('admin_ledger.ledgerexcel');
+    });
+    // Ledger Routes End--------------------------------------------------------------------------
 
+
+    // Order Report Routes Start--------------------------------------------------------------------------
+    Route::prefix('admin_order_report')->group(function(){
+        Route::get('index',[AdminOrderReportController::class,'index'])->name('admin_order_report.index');
+        Route::get('listing',[AdminOrderReportController::class,'listing'])->name('admin_order_report.listing');
+        Route::get('ledgerpdf',[AdminOrderReportController::class,'ledgerpdf'])->name('admin_order_report.ledgerpdf');
+    });
+    // Order Report Routes End--------------------------------------------------------------------------
 
 
 });

@@ -42,10 +42,10 @@ class MapProductController extends Controller
                      OR products.product_no LIKE '%$searchValue%')";
         }
 
-        $sql = "SELECT * FROM map_product_prices,users,products WHERE map_product_prices.user_id=users.id AND map_product_prices.product_id=products.id $filter $where";
+        $sql = "SELECT map_product_prices.*,users.name,users.image_path,products.product_name,products.product_no FROM map_product_prices,users,products WHERE map_product_prices.user_id=users.id AND map_product_prices.product_id=products.id $filter $where";
 
         $sqlTot = $sql;
-        $sqlRec = $sql . " ORDER BY users.id DESC LIMIT " . $params['start'] . ", " . $params['length'];
+        $sqlRec = $sql . " ORDER BY map_product_prices.id DESC LIMIT " . $params['start'] . ", " . $params['length'];
 
         $result = DB::select($sqlRec);
         $totalRecords = count(DB::select($sqlTot));
@@ -131,6 +131,7 @@ class MapProductController extends Controller
         $distributors = User::where('role_id', '=', 2)->where('status',1)->get();
         $products = Product::where('status',1)->get();
         $map_product_price=MapProductPrice::findOrFail($id);
+        // dd($map_product_price);
         return view('Backend.Map Product Price.map_product_price_edit')->with([
             'distributors'=>$distributors,
             'products'=>$products,
@@ -140,6 +141,7 @@ class MapProductController extends Controller
 
     public function update(Request $request,$id)
     {
+        // dd($id);
         if($request->isMethod('post')){
             $map_product_price = MapProductPrice::find($id);
 

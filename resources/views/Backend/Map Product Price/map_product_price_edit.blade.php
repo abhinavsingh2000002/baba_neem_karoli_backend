@@ -29,18 +29,20 @@
                                             </div>
                                         @endif
                                         <h1 class="mb-3">Map Product Price</h1>
-                                        <form action="{{ Route('map_product_price.update',[$map_product_price->id]) }}" method="POST">
+                                        <form action="{{ Route('map_product_price.update',$map_product_price->id) }}" method="POST">
                                             @csrf
                                             <div class="row">
                                                 <div class="col-12 col-sm-6">
                                                     <div class="form-group">
                                                         <div class="controls">
                                                             <label>Distributor<span class="danger"> *</span></label>
-                                                            <select class="form-control" name="distributor" id="">
-                                                                <option value="">--------- Please Select Distributor----------</option>
-                                                                @foreach ($distributors as $distri)
-                                                                <option value="{{$distri->id}}"{{$distri->id==$map_product_price->user_id}} selected>{{$distri->name}}</option>
-                                                                @endforeach
+                                                           <select class="form-control" name="distributor" id="">
+                                                            <option value="">--------- Please Select Distributor----------</option>
+                                                            @foreach ($distributors as $distri)
+                                                                <option value="{{ $distri->id }}" {{ $distri->id == $map_product_price->user_id ? 'selected' : '' }}>
+                                                                    {{ $distri->name }}
+                                                                </option>
+                                                            @endforeach
                                                             </select>
                                                         </div>
                                                     </div>
@@ -52,7 +54,7 @@
                                                             <select class="form-control" name="product" id="">
                                                                 <option value="">--------- Please Select Product----------</option>
                                                                 @foreach ($products as $pro)
-                                                                <option value="{{$pro->id}}"{{$pro->id==$map_product_price->product_id}} selected>{{$pro->product_name}}</option>
+                                                                <option value="{{$pro->id}}"{{$pro->id==$map_product_price->product_id ? 'selected':''}}>{{$pro->product_name}}</option>
                                                                 @endforeach
                                                             </select>
                                                         </div>

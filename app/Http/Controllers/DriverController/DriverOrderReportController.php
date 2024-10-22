@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\AdminController;
+namespace App\Http\Controllers\DriverController;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -11,11 +11,11 @@ use PDF;
 use App\Exports\OrderReportExport;
 use Maatwebsite\Excel\Facades\Excel;
 
-class AdminOrderReportController extends Controller
+class DriverOrderReportController extends Controller
 {
     public function index()
     {
-        return view('Backend.Report.report_index');
+        return view('Driver.Report.report_index');
     }
 
     public function listing(Request $request)
@@ -27,7 +27,7 @@ class AdminOrderReportController extends Controller
             $query->where('status', 1);
         })
         ->get();
-        return view('Backend.Report.report_search')->with(['all_product'=>$all_product,'order'=>$order]);
+        return view('Driver.Report.report_search')->with(['all_product'=>$all_product,'order'=>$order]);
     }
 
     public function reportpdf(Request $request)
@@ -39,10 +39,10 @@ class AdminOrderReportController extends Controller
             $query->where('status', 1);
         })
         ->get();
-        $pdf = PDF::loadView('Backend.Report.report_pdf', [
+        $pdf = PDF::loadView('Driver.Report.report_pdf', [
             'all_product' => $all_product,
             'order' => $order,
-        ])->setPaper('a3', 'landscape'); // Set paper size to A4 landscape
+        ])->setPaper('a4', 'landscape'); // Set paper size to A4 landscape
 
         return $pdf->download('Report_' . $request->date . '.pdf');
     }

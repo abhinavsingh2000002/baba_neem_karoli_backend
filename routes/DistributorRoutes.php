@@ -7,6 +7,7 @@ use App\Http\Controllers\DistributorController\CartController;
 use App\Http\Controllers\DistributorController\OrderPlacedController;
 use App\Http\Controllers\DistributorController\DistributorBillController;
 use App\Http\Controllers\DistributorController\DistributorCredController;
+use App\Http\Controllers\DistributorController\DistributorLedgerController;
 
 
 
@@ -56,4 +57,16 @@ Route::middleware(DistrubutorMiddleware::class)->group(function(){
             Route::get('listing',[DistributorCredController::class,'listing'])->name('distributor_cred.listing');
         });
     // Route for Distribor Cred End------------------------------------------------------
+
+
+
+     // Ledger Routes Start--------------------------------------------------------------------------
+     Route::prefix('distributor_ledger')->group(function(){
+        Route::get('index',[DistributorLedgerController::class,'index'])->name('distributor_ledger.index');
+        Route::get('listing',[DistributorLedgerController::class,'listing'])->name('distributor_ledger.listing');
+        Route::get('ledgerpdf',[DistributorLedgerController::class,'ledgerpdf'])->name('distributor_ledger.ledgerpdf');
+        Route::get('ledgerexcel',[DistributorLedgerController::class,'ledgerexcel'])->name('distributor_ledger.ledgerexcel');
+    });
+    // Ledger Routes End--------------------------------------------------------------------------
+
 });

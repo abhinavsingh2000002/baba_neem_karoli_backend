@@ -45,67 +45,13 @@ Ledger
                                         const currentMonthYear = today.getFullYear() + '-' + ('0' + (today.getMonth() + 1)).slice(-2);
                                         // Set the default value of the input field
                                         document.getElementById('currentMonthYear').value = currentMonthYear;
-                                        // fetch('http://worldtimeapi.org/api/timezone/Etc/UTC')
-                                        // .then(response => response.json())
-                                        // .then(data => {
-                                        //     // Parse the current date from the API response
-                                        //     const currentDate = new Date(data.datetime);
-                                        //     // Extract year and month in YYYY-MM format
-                                        //     const currentMonthYear = currentDate.getFullYear() + '-' + ('0' + (currentDate.getMonth() + 1)).slice(-2);
-                                        //     // Set the default value of the input field
-                                        //     document.getElementById('currentMonthYear').value = currentMonthYear;
-                                        // })
-                                        // .catch(error => {
-                                        //     console.error('Error fetching the date:', error);
-                                        // });
                                     </script>
-                                    {{-- <label for="monthSelect" class="form-label">Month:</label>
-                                    <select id="monthSelect" class="form-control">
-                                        <option value="">Select Month</option>
-                                        <option value="01">January</option>
-                                        <option value="02">February</option>
-                                        <option value="03">March</option>
-                                        <option value="04">April</option>
-                                        <option value="05">May</option>
-                                        <option value="06">June</option>
-                                        <option value="07">July</option>
-                                        <option value="08">August</option>
-                                        <option value="09">September</option>
-                                        <option value="10">October</option>
-                                        <option value="11">November</option>
-                                        <option value="12">December</option>
-                                    </select> --}}
-                                </div>
-                                <div class="col-md-3 mb-2">
-                                    <label for="select Distributor" class="form-label">Select Distributor</label>
-                                    <select name="distributorName" class="form-control" id="distributorName">
-                                        <option value="">please Select Distributor</option>
-                                        @foreach ($distributor as $dis)
-                                        <option value="{{$dis->id}}">{{$dis->name}}</option>
-                                        @endforeach
-                                    </select>
-                                    {{-- <label for="yearSelect" class="form-label">Year:</label>
-                                    <select id="yearSelect" class="form-control">
-                                        <option value="">Select Year</option>
-                                        <!-- Generate years dynamically -->
-                                        <script>
-                                            const currentYear = new Date().getFullYear();
-                                            const currentMonth = new Date().getMonth() + 1; // Months are 0-indexed
-
-                                            for (let i = currentYear; i >= currentYear - 10; i--) {
-                                                document.write(`<option value="${i}">${i}</option>`);
-                                            }
-
-                                            // Set default selected month and year
-                                            document.getElementById('monthSelect').value = String(currentMonth).padStart(2, '0'); // Pad month with leading zero
-                                            document.getElementById('yearSelect').value = currentYear;
-                                        </script>
-                                    </select> --}}
                                 </div>
                                 <div class="col-12 col-md-2">
                                     <button id="filterButton" class="btn btn-primary w-100">Filter</button>
                                 </div>
-
+                                <div class="col-12 col-md-3">
+                                </div>
                                 <div class="col-md-5 mb-2 mt-2 d-flex justify-content-md-end">
                                     <button id="exportCsv" class="btn btn-success me-2">Download CSV</button>
                                     <button id="exportPdf" class="btn btn-danger">Download PDF</button>
@@ -148,7 +94,7 @@ Ledger
         "serverSide": true,
         "lengthMenu": [10, 50, 100, 500, 1000],
         "ajax": {
-            "url": "{{ Route('admin_ledger.listing') }}",
+            "url": "{{ Route('distributor_ledger.listing') }}",
             "type": "GET",
             "data": function(d) {
                 d.month = $('#monthSelect').val();
@@ -173,7 +119,7 @@ Ledger
         month = parseInt(month);
         let distributorName=$('#distributorName').val();
 
-        window.location.href = `/admin_ledger/ledgerexcel?month=${month}&year=${year}&distributorName=${distributorName}&export=true`;
+        window.location.href = `/distributor_ledger/ledgerexcel?month=${month}&year=${year}`;
         });
 
 
@@ -185,7 +131,7 @@ Ledger
             year = parseInt(year);
             month = parseInt(month);
             $.ajax({
-                url:"{{Route('admin_ledger.ledgerpdf')}}",
+                url:"{{Route('distributor_ledger.ledgerpdf')}}",
                 type:'GET',
                 data:{
                     month:month,
@@ -198,7 +144,7 @@ Ledger
                     }
                 else {
                     // Redirect to PDF URL for download
-                    window.location.href = "{{Route('admin_ledger.ledgerpdf')}}" + "?month=" + month + "&year=" + year + "&distributorName=" + distributorName;
+                    window.location.href = "{{Route('distributor_ledger.ledgerpdf')}}" + "?month=" + month + "&year=" + year;
                 }
                 },
                 error:function(xhr,status,error){

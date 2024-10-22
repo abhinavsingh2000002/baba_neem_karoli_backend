@@ -8,6 +8,7 @@ use DB;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use Carbon\Carbon;
+use App\Models\MapProductPrice;
 
 class AdminOrderController extends Controller
 {
@@ -111,7 +112,7 @@ class AdminOrderController extends Controller
                 </a>';
                 if($obj->order_status=='1'){
                     $actionButtons .=
-                          '<a class="btn btn-sm btn-warning" href="' . route('admin_order.detailListing', $id) . '" title="Edit Order">
+                          '<a class="btn btn-sm btn-warning" href="' . route('admin_order.edit', $id) . '" title="Edit Order">
                         <i class="fas fa-edit"></i>
                     </a>';
                 }
@@ -181,4 +182,87 @@ class AdminOrderController extends Controller
                 'orderDetail'=>$orderDetail
             ]);
     }
+
+    public function edit($orderId)
+    {
+        $order = Order::with('orderDetails')->find($orderId);
+        $products=MapProductPrice::select('map_product_prices.price','products.*')->join('products','map_product_prices.product_id','=','products.id')
+        ->where('user_id',$order->user_id)->where('products.status','=',1)->get();
+        return view('Backend.Order.order_edit')->with(['order'=>$order,'products'=>$products]);
+    }
+
+
+    public function update(Request $request, $orderId)
+    {
+        $order = Order::find($orderId);
+        $totalAmount = 0; // Initialize total amount
+
+        // Loop through existing products to update or delete them
+        foreach ($request->details as $detailData) {
+            if (isset($detailData['delete']) && $detailData['delete']) {
+                // Delete the product if marked for removal
+                OrderDetail::find($detailData['id'])->delete();
+            } else {
+                // Update existing product
+                $orderDetail = OrderDetail::find($detailData['id']);
+
+                // Fetch product price
+                $product_price = MapProductPrice::select('price')
+                                ->where('product_id', $orderDetail->product_id)
+                                ->where('user_id', $orderDetail->user_id)
+                                ->first();
+
+                // Update product quantity and amount in OrderDetail
+                $orderDetail->product_quantity = $detailData['quantity'];
+                $orderDetail->amount = $detailData['quantity'] * $product_price->price;
+                $orderDetail->save();
+
+                // Add the amount of this product to the total order amount
+                $totalAmount += $orderDetail->amount;
+            }
+        }
+
+        // Handle new products if any
+        if ($request->has('new_products')) {
+            $newProductIds = $request->new_products['product_id']; // Get all product IDs
+            $newQuantities = $request->new_products['quantity']; // Get corresponding quantities
+
+            foreach ($newProductIds as $index => $productId) {
+                $quantity = $newQuantities[$index]; // Get the corresponding quantity for this product
+
+                $product = MapProductPrice::select('map_product_prices.price', 'products.*')
+                    ->join('products', 'map_product_prices.product_id', '=', 'products.id')
+                    ->where('map_product_prices.user_id', $order->user_id)
+                    ->where('products.status', '=', 1)
+                    ->where('products.id', '=', $productId)
+                    ->first(); // Get the single product
+                if ($product) {
+                    $orderDetail = new OrderDetail();
+                    $orderDetail->order_id = $order->id;
+                    $orderDetail->user_id = $order->user_id;
+                    $orderDetail->product_id = $product->id;
+                    $orderDetail->order_no = $order->order_no;
+                    $orderDetail->product_no = $product->product_no;
+                    $orderDetail->product_name = $product->product_name;
+                    $orderDetail->company_name = $product->company_name;
+                    $orderDetail->product_image = $product->product_image;
+                    $orderDetail->product_description = $product->product_description;
+                    $orderDetail->product_weight = $product->product_quantity;
+                    $orderDetail->product_quantity = $quantity; // Use the correct quantity
+                    $orderDetail->item_per_cred = $product->item_per_cred;
+                    $orderDetail->amount = $quantity * $product->price; // Calculate amount based on quantity
+                    $orderDetail->save();
+
+                    // Add the amount of this new product to the total order amount
+                    $totalAmount += $orderDetail->amount;
+                }
+            }
+        }
+        // Update the total amount in the Order table
+        $order->total_amount = $totalAmount;
+        $order->save();
+
+        return redirect()->back()->with('success', 'Order updated successfully.');
+    }
+
 }

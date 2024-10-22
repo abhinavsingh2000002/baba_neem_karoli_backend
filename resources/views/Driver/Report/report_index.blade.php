@@ -45,9 +45,10 @@ Order Report
                         </div>
                     </form>
                 </div>
+                <div id="report"></div>
             </section>
             <!-- users list ends -->
-            <div id="report"></div>
+
         </div>
     </div>
 </div>
@@ -66,7 +67,7 @@ Order Report
         var date=$('#date').val();
         if(date){
             $.ajax({
-                url:"{{Route('admin_order_report.listing')}}",
+                url:"{{Route('driver_report.listing')}}",
                 type:"GET",
                 data:{
                     date:date,
@@ -96,13 +97,13 @@ Order Report
         var date=$('#date').val();
         if(date){
             $.ajax({
-                url:"{{Route('admin_order_report.reportpdf')}}",
+                url:"{{Route('driver_report.reportpdf')}}",
                 type:"GET",
                 data:{
                     date:date,
                 },
                 success:function(response){
-                    window.location.href ="{{Route('admin_order_report.reportpdf')}}" + "?date="+date;
+                    window.location.href ="{{Route('driver_report.reportpdf')}}" + "?date="+date;
                 },
                 error:function(xhr,status,error){
                     console.log('Error',error);
@@ -125,7 +126,7 @@ Order Report
         var date=$('#date').val();
         if(date){
             $.ajax({
-                url:"{{Route('admin_order_report.listing')}}",
+                url:"{{Route('driver_report.listing')}}",
                 type:"GET",
                 data:{
                     date:date,
@@ -155,13 +156,13 @@ Order Report
         var date=$('#date').val();
         if(date){
             $.ajax({
-                url:"{{Route('admin_order_report.reportExcel')}}",
+                url:"{{Route('driver_report.reportExcel')}}",
                 type:"GET",
                 data:{
                     date:date,
                 },
                 success:function(response){
-                    window.location.href ="{{Route('admin_order_report.reportExcel')}}" + "?date="+date;
+                    window.location.href ="{{Route('driver_report.reportExcel')}}" + "?date="+date;
                 },
                 error:function(xhr,status,error){
                     console.log('Error',error);

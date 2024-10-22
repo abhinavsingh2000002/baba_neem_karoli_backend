@@ -73,6 +73,7 @@ class OrderPlacedController extends Controller
                 $orderDetails->order_no=$order->order_no;
                 $orderDetails->user_id=Auth::user()->id;
                 $orderDetails->product_no=$total_order_one->product_no;
+                $orderDetails->product_id=$total_order_one->id;
                 $orderDetails->product_name=$total_order_one->product_name;
                 $orderDetails->product_no=$total_order_one->product_no;
                 $orderDetails->product_name=$total_order_one->product_name;

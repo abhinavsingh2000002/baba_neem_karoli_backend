@@ -3,30 +3,38 @@
         <div class="main-menu menu-fixed menu-light menu-accordion menu-shadow" data-scroll-to-active="true">
             <div class="main-menu-content">
                 <ul class="navigation navigation-main" id="main-menu-navigation" data-menu="menu-navigation">
+                    <!-- Dashboard -->
                     <li class="{{ Request::is('dashboard') ? 'active' : '' }}">
                         <a href="/dashboard">
                             <i class="fa fa-home"></i>
-                            <span class="menu-title" data-i18n="Dashboard Hospital">Dashboard</span>
+                            <span class="menu-title" data-i18n="Dashboard">Dashboard</span>
                         </a>
                     </li>
 
+                    <!-- For Role ID 1 (Admin) -->
                     @if(Auth::user()->role_id == 1)
                     <li class="navigation-header">
                         <span data-i18n="Professional">Professional</span>
                         <i class="la la-ellipsis-h" data-toggle="tooltip" data-placement="right" data-original-title="Professional"></i>
                     </li>
+
+                    <!-- Distributor -->
                     <li class="nav-item {{ Request::is('distributor*') ? 'active' : '' }}">
                         <a href="{{ route('distributor.index') }}">
                             <i class="fa fa-user"></i>
                             <span class="menu-title" data-i18n="Report">Distributor</span>
                         </a>
                     </li>
+
+                    <!-- Driver -->
                     <li class="nav-item {{ Request::is('driver*') ? 'active' : '' }}">
                         <a href="{{ route('driver.index') }}">
                             <i class="fa fa-car"></i>
                             <span class="menu-title" data-i18n="Report">Driver</span>
                         </a>
                     </li>
+
+                    <!-- Product -->
                     <li class="nav-item {{ Request::is('product*') || Request::is('map_product_price*') ? 'active' : '' }}">
                         <a href="#">
                             <i class="fa fa-box"></i>
@@ -45,19 +53,22 @@
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item {{ Request::is('admin_order*') ? 'active' : '' }}">
+
+                    <!-- Order -->
+                    <li class="nav-item {{ Request::is('admin_order*') && !Request::is('admin_order_report*') ? 'active' : '' }}">
                         <a href="#">
                             <i class="fa fa-shopping-cart"></i>
                             <span class="menu-title" data-i18n="Appointment">Order</span>
                         </a>
                         <ul class="menu-content">
-                            <li class="{{ Request::is('admin_order*') ? 'active' : '' }}">
+                            <li class="{{ Request::is('admin_order*') && !Request::is('admin_order_report*') ? 'active' : '' }}">
                                 <a class="menu-item" href="{{ route('admin_order.index') }}">
                                     <i></i><span>Order</span>
                                 </a>
                             </li>
                         </ul>
                     </li>
+                    <!-- Bills -->
                     <li class="nav-item {{ Request::is('admin_bills*') ? 'active' : '' }}">
                         <a href="#">
                             <i class="fa fa-file-invoice"></i>
@@ -72,6 +83,7 @@
                         </ul>
                     </li>
 
+                    <!-- Driver Task -->
                     <li class="nav-item {{ Request::is('admin_driver_task*') ? 'active' : '' }}">
                         <a href="#">
                             <i class="fa fa-clipboard-list"></i>
@@ -90,18 +102,24 @@
                             </li>
                         </ul>
                     </li>
+
+                    <!-- CRED -->
                     <li class="nav-item {{ Request::is('admin_cred*') ? 'active' : '' }}">
                         <a href="{{ route('admin_cred.index') }}">
                             <i class="fa fa-box"></i>
                             <span class="menu-title" data-i18n="Report">CRED</span>
                         </a>
                     </li>
+
+                    <!-- Ledger -->
                     <li class="nav-item {{ Request::is('admin_ledger*') ? 'active' : '' }}">
                         <a href="{{ route('admin_ledger.index') }}">
                             <i class="fa fa-book"></i>
                             <span class="menu-title" data-i18n="Report">Ledger</span>
                         </a>
                     </li>
+
+                    <!-- Reports -->
                     <li class="nav-item {{ Request::is('admin_order_report*') ? 'active' : '' }}">
                         <a href="{{ route('admin_order_report.index') }}">
                             <i class="fa fa-book"></i>
@@ -110,6 +128,7 @@
                     </li>
                     @endif
 
+                    <!-- For Role ID 2 (Distributor) -->
                     @if(Auth::user()->role_id == 2)
                     <li class="nav-item {{ Request::is('distributor_product*') || Request::is('cart*') || Request::is('order*') ? 'active' : '' }}">
                         <a href="#">
@@ -134,6 +153,8 @@
                             </li>
                         </ul>
                     </li>
+
+                    <!-- Bills -->
                     <li class="nav-item {{ Request::is('bills*') ? 'active' : '' }}">
                         <a href="{{ route('bills.index') }}">
                             <i class="fa fa-file-invoice"></i>
@@ -141,14 +162,24 @@
                         </a>
                     </li>
 
+                    <!-- Distributor CRED -->
                     <li class="nav-item {{ Request::is('distributor_cred*') ? 'active' : '' }}">
                         <a href="{{ route('distributor_cred.index') }}">
                             <i class="fa fa-box"></i>
                             <span class="menu-title" data-i18n="Report">CRED</span>
                         </a>
                     </li>
+
+                    <!-- Ledger -->
+                    <li class="nav-item {{ Request::is('distributor_ledger*') ? 'active' : '' }}">
+                        <a href="{{ route('distributor_ledger.index') }}">
+                            <i class="fa fa-book"></i>
+                            <span class="menu-title" data-i18n="Report">Ledger</span>
+                        </a>
+                    </li>
                     @endif
 
+                    <!-- For Role ID 3 (Driver) -->
                     @if(Auth::user()->role_id == 3)
                     <li class="nav-item {{ Request::is('driver_task*') || Request::is('cart*') || Request::is('order*') ? 'active' : '' }}">
                         <a href="#">
@@ -163,7 +194,9 @@
                             </li>
                         </ul>
                     </li>
-                    <li class="nav-item {{ Request::is('driver_cred*')}}">
+
+                    <!-- Driver CRED -->
+                    <li class="nav-item {{ Request::is('driver_cred*') ? 'active' : '' }}">
                         <a href="#">
                             <i class="fa fa-clipboard-list"></i>
                             <span class="menu-title" data-i18n="Patients">Cred</span>
@@ -171,19 +204,22 @@
                         <ul class="menu-content">
                             <li class="{{ Request::is('driver_cred.*') ? 'active' : '' }}">
                                 <a class="menu-item" href="{{ route('driver_cred.index') }}">
-                                    <i></i><span>Cred</span>
-                                </a>
-                            </li>
-                            <li class="{{ Request::is('driver_cred.*') ? 'active' : '' }}">
-                                <a class="menu-item" href="{{ route('driver_cred.add') }}">
-                                    <i></i><span>Add Cred</span>
+                                    <i></i><span>Alloted CRED</span>
                                 </a>
                             </li>
                         </ul>
                     </li>
+                      <!-- Reports -->
+                      <li class="nav-item {{ Request::is('driver_report*') ? 'active' : '' }}">
+                        <a href="{{ route('driver_report.index') }}">
+                            <i class="fa fa-book"></i>
+                            <span class="menu-title" data-i18n="Report">Report</span>
+                        </a>
+                    </li>
                     @endif
                 </ul>
             </div>
+
         </div>
 
             {{-- <li class=" nav-item"><a href="hospital-payment-reports.html"><i class="la la-bar-chart"></i><span class="menu-title" data-i18n="Report">Report</span></a>

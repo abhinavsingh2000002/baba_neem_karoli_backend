@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\AdminController;
+namespace App\Http\Controllers\DistributorController;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -10,22 +10,18 @@ use PDF;
 use Carbon\Carbon;
 use App\Models\User;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\LedgerExport;
-use Illuminate\Support\Facades\Log;
+use App\Exports\Distributor\DistributorLedgerExport;
+use Illuminate\Support\Facades\Auth;
 
-class AdminLedgerController extends Controller
+class DistributorLedgerController extends Controller
 {
     public function index()
     {
-        $distributor=User::where('role_id','=',2)->where('status','=',1)->get();
-        return view('Backend.Ledger.ledger_listing')->with([
-            'distributor'=>$distributor
-        ]);
+        return view('Distributor.Ledger.ledger_listing');
     }
 
     public function listing(Request $request)
     {
-        // dd($request->currentMonthYear);
         $columns = array(
             0 => 'SNo',
             1 => 'Distributor Name',
@@ -73,10 +69,10 @@ class AdminLedgerController extends Controller
              // Build the filter for SQL query
             $filter = "AND MONTH(bill_date) = $month AND YEAR(bill_date) = $year AND users.id=$distributorName";
         }
-
+        $User_id=Auth()->user()->id;
         $sql = "SELECT bills.*,users.*,orders.* FROM bills,users,orders
         WHERE bills.user_id=users.id AND bills.order_id=orders.id
-        AND users.status=1 $filter $where";
+        AND users.status=1 AND bills.user_id=".$User_id." $filter $where";
         // dd($sql);
         $sqlTot = $sql;
         $sqlRec = $sql . " ORDER BY bills.id DESC LIMIT " . $params['start'] . ", " . $params['length'];
@@ -133,32 +129,18 @@ class AdminLedgerController extends Controller
 
     public function ledgerpdf(Request $request)
     {
-        if($request->distributorName){
+
             $bills = Bill::select('bills.*', 'users.name', 'orders.total_amount', 'orders.order_status')
             ->join('orders', 'bills.order_id', '=', 'orders.id')
             ->join('users', 'bills.user_id', '=', 'users.id')
             ->where('users.status', '=', 1)->where('orders.order_status','!=',0)
-            ->where('users.id','=',$request->distributorName)
+            ->where('users.id','=',Auth::user()->id)
             ->whereMonth('bills.bill_date', '=', $request->month)
             ->whereYear('bills.bill_date', '=', $request->year)
             ->get();
-        }
-        else{
-            $bills = Bill::select('bills.*', 'users.name', 'orders.total_amount', 'orders.order_status')
-            ->join('orders', 'bills.order_id', '=', 'orders.id')
-            ->join('users', 'bills.user_id', '=', 'users.id')
-            ->where('users.status', '=', 1)->where('orders.order_status','!=',0)
-            ->whereMonth('bills.bill_date', '=', $request->month)
-            ->whereYear('bills.bill_date', '=', $request->year)
-            ->when($request->distributorName, function ($query) use ($request) {
-                return $query->where('users.id', '=', $request->distributorName);
-            })
-            ->get();
-        }
-        // dd($bills);
         if(count($bills)>0){
             $data['bills']=$bills;
-            $pdf = PDF::loadView('Backend.Ledger.ledger_pdf', $data)
+            $pdf = PDF::loadView('Distributor.Ledger.ledger_pdf', $data)
               ->setOption('defaultFont', 'DejaVu Sans')
               ->setOption('isHtml5ParserEnabled', true)
               ->setOption('isRemoteEnabled', true);
@@ -173,14 +155,13 @@ class AdminLedgerController extends Controller
     {
         $month = $request->month;
         $year = $request->year;
-        $distributorName=$request->distributorName;
         if ($request->has('export')) {
-            return $this->exportToExcel($month, $year,$distributorName);
+            return $this->exportToExcel($month, $year);
         }
     }
 
-    protected function exportToExcel($month, $year,$distributorName)
+    protected function exportToExcel($month, $year)
     {
-        return Excel::download(new LedgerExport($month, $year,$distributorName), 'Ledger_'.$distributorName . ' '. $month . '_' . $year . '.xls');
+        return Excel::download(new DistributorLedgerExport($month, $year), 'Ledger_'. $month . '_' . $year . '.xls');
     }
 }

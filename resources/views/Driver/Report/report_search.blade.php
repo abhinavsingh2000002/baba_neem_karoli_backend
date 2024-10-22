@@ -50,7 +50,6 @@ tbody td {
 tr:nth-child(even) {
     background-color: #f2f2f2;
 }
-
     </style>
 </head>
 <body>
@@ -65,7 +64,7 @@ tr:nth-child(even) {
                         <th>{{ $product->product_no }}</br> {{ $product->product_name }}</br> ({{ $product->company_name }}) </br>({{ $product->product_quantity }})</th>
                     @endforeach
                     <th>Total Quantity</th> <!-- New Total Quantity Column -->
-                    <th>Total Amount</th>   <!-- New Total Amount Column -->
+                    {{-- <th>Total Amount</th>   <!-- New Total Amount Column --> --}}
                 </tr>
             </thead>
             <tbody>
@@ -94,7 +93,7 @@ tr:nth-child(even) {
                         @endif
                     @endforeach
                     <td>{{ $totalQuantity }}</td> <!-- Display total quantity -->
-                    <td>{{ $totalAmount }}</td>   <!-- Display total amount -->
+                    {{-- <td>{{ $totalAmount }}</td>   <!-- Display total amount --> --}}
                 </tr>
                 @endforeach
             </tbody>

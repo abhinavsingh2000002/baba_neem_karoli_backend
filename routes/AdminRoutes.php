@@ -79,6 +79,8 @@ Route::middleware(AdminMiddleware::class)->group(function(){
         Route::get('listing',[AdminOrderController::class,'listing'])->name('admin_order.listing');
         Route::get('detailListing/{id}',[AdminOrderController::class,'detailListing'])->name('admin_order.detailListing');
         Route::get('filter',[AdminOrderController::class,'listing'])->name('admin_order.filter');
+        Route::get('edit/{id}',[AdminOrderController::class,'edit'])->name('admin_order.edit');
+        Route::put('update/{id}',[AdminOrderController::class,'update'])->name('admin_order.update');
         Route::post('updateStatus',[AdminOrderController::class,'updateStatus'])->name('admin_order.updateStatus');
     });
     // Order Routes End----------------------------------------------------------------------------------------
@@ -126,7 +128,8 @@ Route::middleware(AdminMiddleware::class)->group(function(){
     Route::prefix('admin_order_report')->group(function(){
         Route::get('index',[AdminOrderReportController::class,'index'])->name('admin_order_report.index');
         Route::get('listing',[AdminOrderReportController::class,'listing'])->name('admin_order_report.listing');
-        Route::get('ledgerpdf',[AdminOrderReportController::class,'ledgerpdf'])->name('admin_order_report.ledgerpdf');
+        Route::get('reportpdf',[AdminOrderReportController::class,'reportpdf'])->name('admin_order_report.reportpdf');
+        Route::get('reportExcel',[AdminOrderReportController::class,'reportExcel'])->name('admin_order_report.reportExcel');
     });
     // Order Report Routes End--------------------------------------------------------------------------
 

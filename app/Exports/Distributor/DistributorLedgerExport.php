@@ -1,31 +1,29 @@
 <?php
 
-namespace App\Exports;
+namespace App\Exports\Distributor;
 
 use App\Models\Bill;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Illuminate\Support\Facades\Auth;
 
-
-
-class LedgerExport implements FromCollection, WithHeadings,WithStyles
+class DistributorLedgerExport implements FromCollection, WithHeadings,WithStyles
 {
     /**
     * @return \Illuminate\Support\Collection
     */
+
     protected $month;
     protected $year;
     protected $distributorName;
 
-    public function __construct($month, $year,$distributorName)
+    public function __construct($month, $year)
     {
         $this->month = $month;
         $this->year = $year;
-        $this->distributorName=$distributorName;
     }
-
     public function collection()
     {
             return Bill::select('bills.bill_no', 'orders.order_no', 'bills.bill_date', 'users.name as distributor_name', 'orders.total_amount', 'orders.order_status')
@@ -33,11 +31,9 @@ class LedgerExport implements FromCollection, WithHeadings,WithStyles
             ->join('users', 'bills.user_id', '=', 'users.id')
             ->where('users.status', '=', 1)
             ->where('orders.order_status', '!=', 0)
+            ->where('users.id','=',Auth::user()->id)
             ->whereMonth('bills.bill_date', '=', $this->month)
             ->whereYear('bills.bill_date', '=', $this->year)
-            ->when($this->distributorName, function ($query) { // Use $query instead of $this
-                return $query->where('users.id', '=', $this->distributorName); // Fix variable reference
-            })
             ->get()
             ->map(function ($item) {
                 // Map status values to string representations
@@ -81,5 +77,6 @@ class LedgerExport implements FromCollection, WithHeadings,WithStyles
             1 => ['font' => ['bold' => true, 'size' => 12]],
         ];
     }
+
 
 }

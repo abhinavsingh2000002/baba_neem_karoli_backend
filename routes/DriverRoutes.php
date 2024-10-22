@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\DriverMiddleware;
 use App\Http\Controllers\DriverController\DriverTaskController;
 use App\Http\Controllers\DriverController\DriverCredController;
+use App\Http\Controllers\DriverController\DriverOrderReportController;
 
 Route::middleware(DriverMiddleware::class)->group(function(){
     // Driver Task Routes Start-------------------------------------------------------------
@@ -23,6 +24,16 @@ Route::middleware(DriverMiddleware::class)->group(function(){
         Route::post('create',[DriverCredController::class,'create'])->name('driver_cred.create');
     });
     // Driver Out Routes End-------------------------------------------------------------
+
+
+     // Order Report Routes Start--------------------------------------------------------------------------
+     Route::prefix('driver_report')->group(function(){
+        Route::get('index',[DriverOrderReportController::class,'index'])->name('driver_report.index');
+        Route::get('listing',[DriverOrderReportController::class,'listing'])->name('driver_report.listing');
+        Route::get('reportpdf',[DriverOrderReportController::class,'reportpdf'])->name('driver_report.reportpdf');
+        Route::get('reportExcel',[DriverOrderReportController::class,'reportExcel'])->name('driver_report.reportExcel');
+    });
+    // Order Report Routes End--------------------------------------------------------------------------
 
 
 });

@@ -233,7 +233,7 @@ $(document).on('click', '#addToCart', function(e) {
     const quantity = productCard.find('input[name="quantity"]').val(); // Get the entered quantity
 
 
-    const quantityPattern = /^(1|[2-9]|[1-9][0-9])(\.5)?$/; // regex for 1.5, 2.5, 3.5, etc.
+    const quantityPattern = /^[1-9][0-9]*(\.5)?$/; // regex for 1.5, 2.5, 3.5, etc.
 
     if (!quantityPattern.test(quantity)) {
         alert('Please enter a valid quantity (e.g., 1.5, 2.5, 3.5).');

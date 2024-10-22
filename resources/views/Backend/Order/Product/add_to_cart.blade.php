@@ -229,7 +229,7 @@ loadCartProducts();
     e.preventDefault();
     let cartId = $(this).attr('id').split('_')[1];
     let quantity = $(this).val();
-    const quantityPattern = /^(1|[2-9]|[1-9][0-9])(\.5)?$/; // regex for 1.5, 2.5, 3.5, etc.
+    const quantityPattern = /^[1-9][0-9]*(\.5)?$/; // regex for 1.5, 2.5, 3.5, etc.
 
     if (!quantityPattern.test(quantity)) {
         alert('Please enter a valid quantity (e.g., 1.5, 2.5, 3.5).');

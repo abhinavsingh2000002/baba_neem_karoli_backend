@@ -84,6 +84,7 @@ Route::middleware(AdminMiddleware::class)->group(function(){
         Route::post('updateStatus',[AdminOrderController::class,'updateStatus'])->name('admin_order.updateStatus');
         Route::get('add',[AdminOrderController::class,'add'])->name('admin_order.add');
         Route::post('product_listing',[AdminOrderController::class,'productListing'])->name('admin_order.product_listing');
+        Route::get('productDetails/{id}/{user_id}',[AdminOrderController::class,'productDetails'])->name('admin_order.productDetails');
         Route::post('add_to_cart',[AdminOrderController::class,'add_to_cart'])->name('admin_order.add_to_cart');
         Route::get('cart_index',[AdminOrderController::class,'cart_index'])->name('admin_order.cart_index');
         Route::post('cart_listing',[AdminOrderController::class,'cart_listing'])->name('admin_order.cart_listing');

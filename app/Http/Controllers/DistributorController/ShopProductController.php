@@ -51,8 +51,7 @@ class ShopProductController extends Controller
     public function productDetails($id)
     {
         $product_detail=MapProductPrice::join('products','map_product_prices.product_id','products.id')
-        ->where('map_product_prices.id',$id)->where('products.status',1)->where('map_product_prices.status',1)->first();
-        // dd($product_detail);
+        ->where('user_id','=',Auth::user()->id)->where('products.id',$id)->where('products.status',1)->where('map_product_prices.status',1)->first();
         return view('Distributor.Product.product_listing_detail')->with(['product_detail'=>$product_detail]);
     }
 

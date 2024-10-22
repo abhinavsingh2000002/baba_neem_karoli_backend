@@ -300,13 +300,21 @@ class AdminOrderController extends Controller
         ->where('user_id',$request->distributor)->where('products.status',1)->where('map_product_prices.status',1)->paginate($perPage);
         $products = $productsQuery->items();
         $totalPages = $productsQuery->lastPage();
-
+        // dd($productsQuery)
         return response()->json([
             'products' => $products,
             'currentPage' => $currentPage,
             'totalPages' => $totalPages,
         ]);
     }
+
+    public function productDetails($id,$user_id)
+    {
+        $product_detail=MapProductPrice::join('products','map_product_prices.product_id','products.id')
+        ->where('map_product_prices.user_id','=',$user_id)->where('products.id',$id)->where('products.status',1)->where('map_product_prices.status',1)->first();
+        return view('Distributor.Product.product_listing_detail')->with(['product_detail'=>$product_detail]);
+    }
+
 
     public function add_to_cart(Request $request)
     {

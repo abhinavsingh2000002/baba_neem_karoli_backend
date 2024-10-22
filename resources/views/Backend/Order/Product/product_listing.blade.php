@@ -109,7 +109,7 @@ function loadProduct(page = 1) {
                             <img class="img-fluid mb-1" src="{{ asset('storage/products/') }}/${image}" alt="Product Image ${index + 1}">
                         </div>
                     `).join('');
-                    let productDetailUrl = `{{ url('distributor_product/productDetail') }}/${data.id}`;
+                    let productDetailUrl = `{{ url('admin_order/productDetails') }}/${data.id}/${data.user_id}`;
                     let productCard = `
                         <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6">
                             <div class="card pull-up">
@@ -240,11 +240,11 @@ $('#distributor').on('change',function(e){
 $(document).on('click', '#addToCart', function(e) {
     e.preventDefault();
     const productCard = $(this).closest('.card-body');  // Get the closest product card
-    const productId = productCard.find('a').attr('href').split('/').pop(); // Extract product ID from URL
+    const productId = productCard.find('a').attr('href').split('/').slice(-2, -1)[0]; // Extract product ID from URL
     const quantity = productCard.find('input[name="quantity"]').val(); // Get the entered quantity
     const distributor=$('#distributor').val();
 
-    const quantityPattern = /^(1|[2-9]|[1-9][0-9])(\.5)?$/; // regex for 1.5, 2.5, 3.5, etc.
+    const quantityPattern = /^[1-9][0-9]*(\.5)?$/;  // regex for 1.5, 2.5, 3.5, etc.
 
     if (!quantityPattern.test(quantity)) {
         alert('Please enter a valid quantity (e.g., 1.5, 2.5, 3.5).');

@@ -104,7 +104,7 @@
 
             var ancha_id = $('#ancha_id').val();
             $("#button-container").html(
-                '<a href="{{ route('product.add') }}" id="custom-button" class="btn btn-primary mb-2">Add New +</a>');
+                '<a href="{{ route('admin_order.add') }}" id="custom-button" class="btn btn-primary mb-2">Add New +</a>');
         }
         loadData();
 

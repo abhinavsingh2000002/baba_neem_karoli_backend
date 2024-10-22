@@ -5,10 +5,13 @@ namespace App\Http\Controllers\AdminController;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use DB;
+use App\Models\User;
 use App\Models\Order;
 use App\Models\OrderDetail;
 use Carbon\Carbon;
 use App\Models\MapProductPrice;
+use App\Models\ShoppingCart;
+use App\Models\Bill;
 
 class AdminOrderController extends Controller
 {
@@ -265,4 +268,168 @@ class AdminOrderController extends Controller
         return redirect()->back()->with('success', 'Order updated successfully.');
     }
 
+
+    public function add()
+    {
+        $distributor=User::where('role_id','=',2)->where('status','=',1)->get();
+        return view('Backend.Order.Product.product_listing')->with([
+            'distributor'=>  $distributor
+        ]);
+    }
+
+    public function productListing(Request $request)
+    {
+        // dd($request);
+        if($request->search){
+            $perPage = 8;
+            $currentPage = $request->get('page', 1);
+            $productsQuery=MapProductPrice::join('products','map_product_prices.product_id','products.id')
+            ->where('user_id','=',$request->distributor)->where('products.product_name','LIKE','%'.$request->search.'%')->paginate($perPage);
+            $products = $productsQuery->items();
+            $totalPages = $productsQuery->lastPage();
+
+            return response()->json([
+                'products' => $products,
+                'currentPage' => $currentPage,
+                'totalPages' => $totalPages,
+            ]);
+        }
+        $perPage = 8;
+        $currentPage = $request->get('page', 1);
+        $productsQuery=MapProductPrice::join('products','map_product_prices.product_id','products.id')
+        ->where('user_id',$request->distributor)->where('products.status',1)->where('map_product_prices.status',1)->paginate($perPage);
+        $products = $productsQuery->items();
+        $totalPages = $productsQuery->lastPage();
+
+        return response()->json([
+            'products' => $products,
+            'currentPage' => $currentPage,
+            'totalPages' => $totalPages,
+        ]);
+    }
+
+    public function add_to_cart(Request $request)
+    {
+        $productId = $request->input('product_id');
+        $quantity = $request->input('quantity');
+        $exist_detail=ShoppingCart::where('product_id',$request->product_id)->where('user_id',$request->distributor)->first();
+        if($exist_detail)
+        {
+            $update_shoping_cart=ShoppingCart::find($exist_detail->id);
+            $update_shoping_cart->quantity=$request->quantity;
+            $update_shoping_cart->save();
+            return response()->json(['update' => true, 'message' => 'Product Quantity Updated successful at cart']);
+        }
+        $shopping_cart=new ShoppingCart();
+        $shopping_cart->product_id=$request->product_id;
+        $shopping_cart->quantity=$request->quantity;
+        $shopping_cart->user_id=$request->distributor;
+        $shopping_cart->save();
+        return response()->json(['success' => true, 'message' => 'Product added to cart']);
+    }
+
+    public function cart_index(Request $request)
+    {
+        $distributor=User::findOrFail($request->distributor);
+        return view('Backend.Order.Product.add_to_cart')->with([
+            'distributor'=>$distributor,
+        ]);
+    }
+
+    public function cart_listing(Request $request)
+    {
+        $cart_data=ShoppingCart::select('shopping_carts.id as cart_id','shopping_carts.quantity','products.*','map_product_prices.*')
+        ->join('products','shopping_carts.product_id','=','products.id')
+        ->join('map_product_prices','products.id','=','map_product_prices.product_id')
+        ->where('map_product_prices.user_id','=',$request->distributor)->where('shopping_carts.user_id','=',$request->distributor)
+        ->where('map_product_prices.status',1)->where('products.status',1)
+        ->get();
+        $user_data=User::where('id','=',$request->distributor)->first();
+        return response()->json(['data'=>$cart_data,'user_data'=>$user_data]);
+    }
+
+    public function cart_delete(Request $request){
+
+        $deleteCartItem=ShoppingCart::where('id',$request->id)->delete();
+        if($deleteCartItem){
+            return response()->json(['success'=>true,'msg'=>"Cart Item deleted successfully"]);
+        }
+        else{
+            return response()->json(['success'=>true ,'msg'=>'error while deleting cart item']);
+        }
+    }
+
+    public function oderPlaced(Request $request)
+    {
+        // dd($request);
+        $total_order=ShoppingCart::select('shopping_carts.quantity','products.*','map_product_prices.price')->join('products','shopping_carts.product_id','=','products.id')
+        ->join('map_product_prices','shopping_carts.product_id','map_product_prices.product_id')->where('shopping_carts.user_id',$request->distributor)
+        ->where('map_product_prices.user_id',$request->distributor)
+        ->where('products.status','=',1)
+        ->where('map_product_prices.status','=',1)->get();
+        $totalAmount=[];
+        foreach($total_order as $tot_order)
+        {
+            $price = floatval($tot_order->price);
+            $product_quantity = floatval($tot_order->quantity);
+            $totalAmount[] = $price * $product_quantity;
+        }
+        $totalAmount=array_sum($totalAmount);
+        if(count($total_order)>0){
+            $order=new Order();
+            do {
+                $orderNo = mt_rand(1000000000, 9999999999);
+            } while (Order::where('order_no', $orderNo)->exists());
+            $order->order_no = $orderNo;
+            $order->user_id=$request->distributor;
+            $order->total_amount=$totalAmount;
+            $order->order_date=Carbon::now()->toDateString(); // YYYY-MM-DD format
+            $order->order_time=Carbon::now()->toTimeString(); // Will store time in HH:MM:SS format
+            $order->save();
+        }
+        else{
+            return response()->json(['failed'=>'Please Add Item to the cart']);
+        }
+        if($order){
+            $bill=new Bill();
+            do {
+                $billNo = mt_rand(1000000000, 9999999999);
+            } while (Bill::where('bill_no', $billNo)->exists());
+            $bill->bill_no=$billNo;
+            $bill->user_id=$request->distributor;
+            $bill->order_id=$order->id;
+            $bill->order_no=$order->order_no;
+            $bill->bill_date=Carbon::now()->toDateString(); // YYYY-MM-DD format
+            $bill->bill_time=Carbon::now()->toTimeString(); // Will store time in HH:MM:SS format
+            $bill->save();
+        }
+        if($order){
+            foreach($total_order as $total_order_one)
+            {
+                // dd($total_order_one);
+
+                $orderDetails=new OrderDetail();
+                $orderDetails->order_id=$order->id;
+                $orderDetails->order_no=$order->order_no;
+                $orderDetails->user_id=$request->distributor;
+                $orderDetails->product_no=$total_order_one->product_no;
+                $orderDetails->product_id=$total_order_one->id;
+                $orderDetails->product_name=$total_order_one->product_name;
+                $orderDetails->product_no=$total_order_one->product_no;
+                $orderDetails->product_name=$total_order_one->product_name;
+                $orderDetails->company_name=$total_order_one->company_name;
+                $orderDetails->product_image=$total_order_one->product_image;
+                $orderDetails->product_description=$total_order_one->product_description;
+                $orderDetails->product_weight=$total_order_one->product_quantity;
+                $orderDetails->product_quantity=$total_order_one->quantity;
+                $orderDetails->item_per_cred=$total_order_one->item_per_cred;
+                $price = floatval($total_order_one->price);
+                $product_quantity = floatval($total_order_one->quantity);
+                $orderDetails->amount = $price * $product_quantity;
+                // dd($price,$product_quantity);
+                $orderDetails->save();
+            }
+        return response()->json(['success'=>'Order Placed Successfully']);
+        }
+    }
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\DistributorController\DistributorProductOrderContro
 use App\Http\Controllers\Api\DistributorController\DistributorBillController;
 use App\Http\Controllers\Api\DistributorController\DistributorOrderController;
 use App\Http\Controllers\Api\DistributorController\DistributorLaserController;
+use App\Http\Controllers\Api\DistributorController\DistributorCredController;
 
 
 Route::prefix('products')->group(function(){
@@ -27,7 +28,10 @@ Route::prefix('orders')->group(function(){
 
 Route::prefix('laser')->group(function(){
     Route::post('laserListing',[DistributorLaserController::class,'laserListing'])->name('laser.laserListing');
-    Route::post('orderDetailListing',[DistributorLaserController::class,'orderDetailListing'])->name('laser.orderDetailListing');
+});
+
+Route::prefix('cred')->group(function(){
+    Route::post('credListing',[DistributorCredController::class,'credListing'])->name('cred.laserListing');
 });
 
 

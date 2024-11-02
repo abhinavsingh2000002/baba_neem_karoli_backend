@@ -22,3 +22,4 @@ Route::prefix('user')->group(function(){
 });
 
 require __DIR__.'/ApiRoutes/DistributorRoutes.php';
+require __DIR__.'/ApiRoutes/DriverRoutes.php';

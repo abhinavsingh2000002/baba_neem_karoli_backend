@@ -18,7 +18,7 @@ class DriverAllotedTaskController extends Controller
 
          if ($user) {
              // Initialize the query for bills
-             $query = DriverTask::select('users.name as distributorName','users.address as distributorAddress','driver_tasks.task_alloted_date','driver_tasks.task_alloted_time','driver_tasks.status')->join('users','driver_tasks.user_id','=','users.id')->where('driver_id', '=', $user);
+             $query = DriverTask::select('driver_tasks.id','users.name as distributorName','users.address as distributorAddress','driver_tasks.task_alloted_date','driver_tasks.task_alloted_time','driver_tasks.status','driver_tasks.order_no','driver_tasks.order_id')->join('users','driver_tasks.user_id','=','users.id')->where('driver_id', '=', $user);
 
              // Check if a date is provided in the request
              if ($request->has('date')) {

@@ -68,8 +68,8 @@ Add Distributor
                                                 </div>
                                                 <div class="form-group">
                                                     <div class="controls">
-                                                        <label>DOB <span class="danger"> *</span></label>
-                                                        <input type="date" class="form-control" placeholder="DOB" value="" name="dob" required data-validation-required-message="This DOB field is required">
+                                                        <label>DOB <span class="danger"> </span></label>
+                                                        <input type="date" class="form-control" placeholder="DOB" value="" name="dob">
                                                     </div>
                                                 </div>
                                             </div>
@@ -91,8 +91,8 @@ Add Distributor
                                                 </div>
                                                 <div class="form-group">
                                                     <div class="controls">
-                                                        <label>Pan Number<span class="danger"> *</span></label>
-                                                        <input type="text" class="form-control" placeholder="Pan Number" value="" name="pan_number" required data-validation-required-message="This Pan Number field is required">
+                                                        <label>Pan Number<span class="danger"> </span></label>
+                                                        <input type="text" class="form-control" placeholder="Pan Number" value="" name="pan_number">
                                                     </div>
                                                 </div>
 

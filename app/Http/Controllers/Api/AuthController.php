@@ -19,6 +19,7 @@ class AuthController extends Controller
 
     public function get_connection_id(Request $request)
     {
+        // dd($request);
         $connection_id = $this->getConnectionId($request->api_key);
         // dd($connection_id);
        if($connection_id)
@@ -81,6 +82,7 @@ class AuthController extends Controller
                 'user_id' => $user->id,
                 'user_name' => $user->name,
                 'user_email' => $user->email,
+                'user_detail'=>$user,
                 // 'phone' => $user->mobile,
                 // 'city' => $user->city,
                 // 'state' => $user->user_state,

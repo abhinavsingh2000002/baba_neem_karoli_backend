@@ -20,3 +20,5 @@ Route::prefix('user')->group(function(){
     Route::post('/listing',[UserRegisterController::class,'Listing']);
     Route::post('/detaillisting',[UserRegisterController::class,'DetailListing']);
 });
+
+require __DIR__.'/ApiRoutes/DistributorRoutes.php';

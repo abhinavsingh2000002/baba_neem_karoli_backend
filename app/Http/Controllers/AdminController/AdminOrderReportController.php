@@ -27,6 +27,9 @@ class AdminOrderReportController extends Controller
             $query->where('status', 1);
         })
         ->get();
+        if(count($order)==0){
+            return response()->json(['failed'=>'No Order Found !']);
+        }
         return view('Backend.Report.report_search')->with(['all_product'=>$all_product,'order'=>$order]);
     }
 
@@ -39,6 +42,9 @@ class AdminOrderReportController extends Controller
             $query->where('status', 1);
         })
         ->get();
+        if(count($order)===0){
+            return response()->json(['failed'=>'No Order Found !']);
+        }
         $pdf = PDF::loadView('Backend.Report.report_pdf', [
             'all_product' => $all_product,
             'order' => $order,

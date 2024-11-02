@@ -104,10 +104,10 @@ class DistributorController extends Controller
                 'email' => 'required|email|unique:users,email',
                 'password' => 'required|string|min:8|max:50',
                 'mobile' => 'required|digits:10|unique:users,mobile',
-                'dob' => 'required|date|before:today',
+                'dob' => 'nullable|date|before:today',
                 'address' => 'required|string|min:5|max:255',
                 'aadhar_number' => 'required|digits:12|unique:users,aadhar_number',
-                'pan_number' => 'required|regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/|unique:users,pan_number',
+                'pan_number' => 'nullable|regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/|unique:users,pan_number',
                 'role_id' => 'required|integer|in:1,2,3',
                 'image_path' => 'required|mimes:jpeg,png|max:10240',
 
@@ -186,10 +186,10 @@ class DistributorController extends Controller
             'email' => 'required|email|unique:users,email,' . $id,  // Ignore unique check for current user's email
             'password' => 'nullable|string|min:8|max:50',  // Password update is optional
             'mobile' => 'required|digits:10|unique:users,mobile,' . $id,  // Ignore unique check for current user's mobile
-            'dob' => 'required|date|before:today',
+            'dob' => 'nullable|date|before:today',
             'address' => 'required|string|min:5|max:255',
             'aadhar_number' => 'required|digits:12|unique:users,aadhar_number,' . $id,  // Ignore unique check for current user's aadhar
-            'pan_number' => 'required|regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/|unique:users,pan_number,' . $id,  // Ignore unique check for current user's PAN
+            'pan_number' => 'nullable|regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/|unique:users,pan_number,' . $id,  // Ignore unique check for current user's PAN
             'role_id' => 'required|integer|in:1,2,3',
             'image_path' => 'nullable|mimes:jpeg,png|max:10240',  // Image upload is optional during update
         ];

@@ -7,7 +7,7 @@ use App\Http\Controllers\DriverController;
 use App\Http\Middleware\AdminMiddleware;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('auth.login');
 });
 
 Route::get('/dashboard', function () {

@@ -73,7 +73,11 @@ Order Report
                     date:date,
                 },
                 success:function(response){
+                    if (response.failed == 'No Order Found !') {
+                            alert("No Order Found");
+                    } else {
                     $('#report').html(response);
+                    }
                 },
                 error:function(xhr,status,error){
                     console.log('Error',error);
@@ -103,7 +107,11 @@ Order Report
                     date:date,
                 },
                 success:function(response){
+                    if (response.failed == 'No Order Found !') {
+                            alert("No Order Found");
+                    } else {
                     window.location.href ="{{Route('driver_report.reportpdf')}}" + "?date="+date;
+                    }
                 },
                 error:function(xhr,status,error){
                     console.log('Error',error);
@@ -115,34 +123,6 @@ Order Report
         }
     }
 
-    $(document).ready(function() {
-        $('#search').on('click', function(e) {
-            e.preventDefault();
-            searchOrder();
-        });
-    });
-
-    function searchOrder() {
-        var date=$('#date').val();
-        if(date){
-            $.ajax({
-                url:"{{Route('driver_report.listing')}}",
-                type:"GET",
-                data:{
-                    date:date,
-                },
-                success:function(response){
-                    $('#report').html(response);
-                },
-                error:function(xhr,status,error){
-                    console.log('Error',error);
-                },
-            })
-        }
-        else{
-            alert("Please Select Data First !")
-        }
-    }
     $(document).ready(function() {
         $('#excel_download').on('click', function(e) {
             e.preventDefault();

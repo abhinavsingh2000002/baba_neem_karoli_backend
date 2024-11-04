@@ -12,13 +12,17 @@ use App\Http\Controllers\Api\DistributorController\DistributorCredController;
 Route::prefix('products')->group(function(){
     Route::post('productListing',[DistributorProductOrderController::class,'productListing'])->name('products.productListing');
     Route::post('addToCart',[DistributorProductOrderController::class,'addToCart'])->name('products.addToCart');
+    Route::post('updateCartProductQuantity',[DistributorProductOrderController::class,'updateCartProductQuantity'])->name('products.updateCartProductQuantity');
     Route::post('cartProduct',[DistributorProductOrderController::class,'cartProduct'])->name('products.cartProduct');
     Route::post('removeCartProduct',[DistributorProductOrderController::class,'removeCartProduct'])->name('products.removeCartProduct');
+    Route::post('orderPlaced',[DistributorProductOrderController::class,'orderPlaced'])->name('products.orderPlaced');
+
 });
 
 Route::prefix('bills')->group(function(){
     Route::post('billListing',[DistributorBillController::class,'billListing'])->name('bills.billListing');
     Route::post('billDetailListing',[DistributorBillController::class,'billDetailListing'])->name('bills.billDetaillisting');
+    Route::post('invoicePdf',[DistributorBillController::class,'invoicePdf'])->name('bills.invoicePdf');
 });
 
 Route::prefix('orders')->group(function(){

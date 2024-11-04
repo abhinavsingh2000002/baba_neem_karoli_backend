@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Api\Traits\ValidationTrait;
 use App\Models\Bill;
+use App\Models\Order;
+use App\Models\OrderDetail;
+use PDF;
 
 class DistributorBillController extends Controller
 {
@@ -78,6 +81,35 @@ class DistributorBillController extends Controller
                 'billsDetail' => $billsDetail,
                 'message' => 'Bills retrieved successfully',
             ], 200); // HTTP 200 OK
+        }
+        else{
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not authenticated',
+            ], 401); // HTTP 401 Unauthorized
+        }
+    }
+
+    public function invoicePdf(Request $request)
+    {
+        // Validate user using connection ID and auth code
+        $user = $this->validate_user($request->connection_id, $request->auth_code);
+        if($user)
+        {
+            $order=Order::select('orders.*','bills.bill_no')->join('bills','orders.id','=','bills.order_id')->where('orders.id',$request->order_id)->first();
+            $orderDetail = OrderDetail::join('bills', 'order_details.order_id', 'bills.order_id')
+                ->join('orders', 'order_details.order_id', '=', 'orders.id')
+                ->where('order_details.order_id', $request->order_id)
+                ->get();
+
+            // Generate PDF
+            $pdf = PDF::loadView('Distributor.Bills.invoice_pdf', [
+                'order' => $order,
+                'orderDetail' => $orderDetail
+            ]);
+
+            // Download the PDF file
+            return $pdf->download('invoice_' . $order->bill_no . '.pdf');
         }
         else{
             return response()->json([

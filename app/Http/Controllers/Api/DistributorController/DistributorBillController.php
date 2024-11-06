@@ -16,7 +16,7 @@ class DistributorBillController extends Controller
 
     public function billListing(Request $request)
     {
-        // Validate user using connection ID and auth code
+       // Validate user using connection ID and auth code
         $user = $this->validate_user($request->connection_id, $request->auth_code);
 
         if ($user) {
@@ -27,12 +27,18 @@ class DistributorBillController extends Controller
             if ($request->has('date')) {
                 // Validate and format the date if needed
                 $date = $request->input('date');
-                // Assuming bill_date is stored as a date
                 $query->whereDate('bill_date', $date);
             }
 
             // Retrieve the bills based on the query
             $bills = $query->get();
+
+            // Add the count of ordered items to each bill
+            $bills->map(function ($bill) {
+                // Count the number of items in OrderDetail for the bill's order_id
+                $bill->noOfOrderedItems = OrderDetail::where('order_id', $bill->order_id)->count();
+                return $bill;
+            });
 
             return response()->json([
                 'status' => 'success',
@@ -45,6 +51,7 @@ class DistributorBillController extends Controller
                 'message' => 'User not authenticated',
             ], 401); // HTTP 401 Unauthorized
         }
+
     }
 
     public function billDetailListing(Request $request)

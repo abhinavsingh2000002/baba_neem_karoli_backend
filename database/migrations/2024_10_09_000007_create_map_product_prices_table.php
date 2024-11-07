@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade')->nullable();
             $table->unsignedBigInteger('product_id');
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade')->onUpdate('cascade')->nullable();
-            $table->unsignedBigInteger('price');
+            $table->decimal('price', 10, 2);
             $table->boolean('status')->default('1')->comment('Active:1,Inactive:0');
             $table->timestamps();
         });

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('order_no',100)->unique();
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade')->nullable();
-            $table->unsignedBigInteger('total_amount');
+            $table->decimal('total_amount', 10, 2);
             $table->integer('order_status')->default('1')->comment('failed:0,pending:1,confirmed:2,delivered:3');
             $table->date('order_date');
             $table->time('order_time');

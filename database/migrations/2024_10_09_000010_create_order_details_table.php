@@ -28,7 +28,7 @@ return new class extends Migration
             $table->string('product_weight');
             $table->string('product_quantity');
             $table->integer('item_per_cred');
-            $table->integer('amount');
+            $table->decimal('amount', 10, 2);
             $table->timestamps();
         });
     }

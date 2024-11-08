@@ -8,6 +8,7 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
@@ -39,6 +40,16 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            // 'mobile' =>'6388338265',
+            // 'dob' =>'2024-11-07',
+            // 'address' =>'Mumbai',
+            // 'aadhar_number' =>'123456789012',
+            // 'pan_number' =>'ABCDE1234F',
+            // 'image_path' =>'default.jpg',
+            // 'role_id'=>1,
+            // 'email_verified_at'=>now(),
+            // 'remember_token'=>Str::random(10),
+            // 'status'=>1,
         ]);
 
         event(new Registered($user));

@@ -66,7 +66,8 @@
                                                             <label>Price<span class="danger"> *</span></label>
                                                             <input type="number" class="form-control"
                                                                 placeholder="Price" value="{{$map_product_price->price}}" name="price" required
-                                                                data-validation-required-message="This Price field is required">
+                                                                data-validation-required-message="This Price field is required" step="0.01"
+                                                                onchange="this.value = parseFloat(this.value).toFixed(2)">
                                                         </div>
                                                     </div>
                                                 </div>

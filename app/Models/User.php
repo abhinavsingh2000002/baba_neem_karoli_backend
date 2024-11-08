@@ -20,6 +20,16 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        // 'mobile',
+        // 'dob',
+        // 'address',
+        // 'aadhar_number',
+        // 'pan_number',
+        // 'image_path',
+        // 'role_id',
+        // 'email_verified_at',
+        // 'remember_token',
+        // 'status',
     ];
 
     /**

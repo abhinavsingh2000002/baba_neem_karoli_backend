@@ -21,7 +21,10 @@ class DistributorLaserController extends Controller
             $date = Carbon::createFromFormat('m-Y', $request->date);
             $month = $date->format('m');
             $year = $date->format('Y');
-            $bills = Bill::select('bills.bill_no','bills.bill_date','bills.bill_time','orders.total_amount','orders.total_amount')->join('orders','bills.order_id','=','orders.id')->whereMonth('bill_date', $month)
+            $bills = Bill::select('bills.bill_no','bills.order_no','bills.bill_date','bills.bill_time','orders.total_amount','orders.total_amount','orders.order_status','users.name')
+            ->join('orders','bills.order_id','=','orders.id')
+            ->join('users','bills.user_id','=','users.id')
+            ->whereMonth('bill_date', $month)
               ->whereYear('bill_date', $year)
               ->where('bills.user_id', '=', $user)
               ->get();

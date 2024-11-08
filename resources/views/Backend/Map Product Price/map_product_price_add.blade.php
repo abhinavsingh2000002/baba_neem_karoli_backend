@@ -68,8 +68,9 @@
                                                         <div class="controls">
                                                             <label>Price<span class="danger"> *</span></label>
                                                             <input type="number" class="form-control"
-                                                                placeholder="Price" name="price" required
-                                                                data-validation-required-message="This Price field is required">
+                                                                placeholder="Price" name="price" required step="0.01"
+                                                                data-validation-required-message="This Price field is required"
+                                                                onchange="this.value = parseFloat(this.value).toFixed(2)">
                                                         </div>
                                                     </div>
                                                 </div>

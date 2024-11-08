@@ -42,7 +42,7 @@ class MapProductController extends Controller
                      OR products.product_no LIKE '%$searchValue%')";
         }
 
-        $sql = "SELECT map_product_prices.*,users.name,users.image_path,products.product_name,products.product_no FROM map_product_prices,users,products WHERE map_product_prices.user_id=users.id AND map_product_prices.product_id=products.id $filter $where";
+        $sql = "SELECT map_product_prices.*,users.name,users.image_path,products.product_name,products.product_no FROM map_product_prices,users,products WHERE map_product_prices.user_id=users.id AND map_product_prices.product_id=products.id AND users.status=1 AND products.status=1 AND map_product_prices.status=1 $filter $where";
 
         $sqlTot = $sql;
         $sqlRec = $sql . " ORDER BY map_product_prices.id DESC LIMIT " . $params['start'] . ", " . $params['length'];
@@ -95,7 +95,7 @@ class MapProductController extends Controller
             $request->validate([
                 'distributor' => 'required|exists:users,id',
                 'product' => 'required|exists:products,id',
-                'price' => 'required|numeric|min:0',
+                'price' => 'required|numeric|min:0|regex:/^\d{1,10}(\.\d{2})?$/',
             ]);
 
             $exists = MapProductPrice::where('user_id', $request->distributor)

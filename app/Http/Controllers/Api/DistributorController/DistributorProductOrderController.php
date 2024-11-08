@@ -293,12 +293,12 @@ class DistributorProductOrderController extends Controller
             }
 
             // Check if the current time is within the allowed time range
-            if ($currentTime->lt($startTime) || $currentTime->gt($endTime)) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Orders can only be placed between 6:00 AM to 7:00 PM.'
-                ], 400); // HTTP status code 400 Bad Request
-            }
+            // if ($currentTime->lt($startTime) || $currentTime->gt($endTime)) {
+            //     return response()->json([
+            //         'status' => 'error',
+            //         'message' => 'Orders can only be placed between 6:00 AM to 7:00 PM.'
+            //     ], 400); // HTTP status code 400 Bad Request
+            // }
 
             $total_order = ShoppingCart::select('shopping_carts.quantity', 'products.*', 'map_product_prices.price')
                 ->join('products', 'shopping_carts.product_id', '=', 'products.id')

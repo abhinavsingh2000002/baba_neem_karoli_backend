@@ -20,9 +20,7 @@ class DriverReportController extends Controller
             $all_product=Product::select('products.product_no','products.product_name','products.product_quantity as productWeight')->where('status',1)->get();
             $order = Order::with(['orderDetails', 'user'])
             ->where('order_date', '=', $request->date)
-            ->whereHas('user', function ($query) {
-                $query->where('status', 1);
-            })
+            ->where('order_status',2)
             ->get();
             return response()->json([
                 'status' => 'success',

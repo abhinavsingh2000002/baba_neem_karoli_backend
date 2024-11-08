@@ -28,34 +28,56 @@
                 @foreach($all_product as $product)
                     <th>{{ $product->product_no }} {{ $product->product_name }} ({{ $product->company_name }}) ({{ $product->product_quantity }})</th>
                 @endforeach
-                <th>Total Quantity</th> <!-- New Total Quantity Column -->
-                <th>Total Amount</th>   <!-- New Total Amount Column -->
+                <th>Total Quantity</th>
+                <th>Total Amount</th>
             </tr>
         </thead>
         <tbody>
+            @php
+                $columnTotals = array_fill(0, count($all_product), 0);
+                $grandTotalQuantity = 0;
+                $grandTotalAmount = 0;
+            @endphp
+
             @foreach($order as $order)
             <tr>
                 <td>{{ $order->user->name }}</td>
                 <td>{{ $order->order_no }}</td>
                 @php
-                    $totalQuantity = 0; // Initialize total quantity
-                    $totalAmount = 0;   // Initialize total amount
+                    $totalQuantity = 0;
+                    $totalAmount = 0;
                 @endphp
-                @foreach($all_product as $product)
+                @foreach($all_product as $index => $product)
                     @php
                         $detail = $order->orderDetails->firstWhere('product_no', $product->product_no);
                         $quantity = $detail ? $detail->product_quantity : 0;
-                        $amount = $detail ? $detail->amount : 0; // Assuming there's an amount field in the detail
+                        $amount = $detail ? $detail->amount : 0;
 
-                        $totalQuantity += $quantity; // Add to total quantity
-                        $totalAmount += $amount;       // Add to total amount
+                        $totalQuantity += $quantity;
+                        $totalAmount += $amount;
+                        $columnTotals[$index] += $quantity;
                     @endphp
-                    <td>{{ $quantity }}</td>
+                    <td>{{ number_format($quantity, 2) }}</td>
                 @endforeach
-                <td>{{ $totalQuantity }}</td> <!-- Display total quantity -->
-                <td>{{ $totalAmount }}</td>   <!-- Display total amount -->
+                <td>{{ number_format($totalQuantity, 2) }}</td>
+                <td>{{ number_format($totalAmount, 2) }}</td>
+                @php
+                    $grandTotalQuantity += $totalQuantity;
+                    $grandTotalAmount += $totalAmount;
+                @endphp
             </tr>
             @endforeach
+
+            <!-- Total Row -->
+            <tr style="font-weight: bold; background-color: #f0f0f0;">
+                <td>Total</td>
+                <td></td>
+                @foreach($columnTotals as $total)
+                    <td>{{ number_format($total, 2) }}</td>
+                @endforeach
+                <td>{{ number_format($grandTotalQuantity, 2) }}</td>
+                <td>{{ number_format($grandTotalAmount, 2) }}</td>
+            </tr>
         </tbody>
     </table>
 </body>

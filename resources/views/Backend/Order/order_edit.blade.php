@@ -87,7 +87,10 @@
                                                             <label for="quantity_{{ $detail->id }}">Quantity</label>
                                                             <input type="number" class="form-control" id="quantity_{{ $detail->id }}"
                                                                 name="details[{{ $detail->id }}][quantity]"
-                                                                value="{{ $detail->product_quantity }}" min="1" required>
+                                                                value="{{ $detail->product_quantity }}" 
+                                                                pattern="^[0-9]*\.?5?$"
+                                                                min="0.5" step="0.5" required
+                                                                oninput="validateQuantity(this)">
                                                         </div>
                                                     </div>
                                                     <div class="col-md-6 col-sm-12">
@@ -154,6 +157,44 @@
     `;
     document.getElementById('new-products').insertAdjacentHTML('beforeend', newProductTemplate);
 });
+
+function validateQuantity(input) {
+    // First remove any non-numeric characters except decimal point
+    input.value = input.value.replace(/[^0-9.]/g, '');
+    
+    // Convert to number
+    let value = parseFloat(input.value);
+    
+    // Check if it's a valid number
+    if (!isNaN(value)) {
+        // Round to nearest 0.5
+        value = Math.round(value * 2) / 2;
+        
+        // Update input value
+        input.value = value;
+    }
+}
+function validateQuantity(input) {
+    // First remove any non-numeric characters except decimal point
+    input.value = input.value.replace(/[^0-9.]/g, '');
+    
+    // Convert to number
+    let value = parseFloat(input.value);
+    
+    // Check if it's a valid number
+    if (!isNaN(value)) {
+        // Round to nearest 0.5
+        value = Math.round(value * 2) / 2;
+        
+        // Update input value
+        input.value = value;
+    }
+    
+    // If value is less than 0.5, set to 0.5
+    if (value < 0.5) {
+        input.value = "0.5";
+    }
+}
 
 </script>
 @endsection

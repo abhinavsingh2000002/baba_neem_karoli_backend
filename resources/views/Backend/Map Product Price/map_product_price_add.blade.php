@@ -65,7 +65,7 @@
                                                 </div>
                                                 <div class="col-12 col-sm-6">
                                                     <div class="form-group">
-                                                        <div class="controls">
+                                                        <div class="controls"> 
                                                             <label>Price<span class="danger"> *</span></label>
                                                             <input type="number" class="form-control"
                                                                 placeholder="Price" name="price" required step="0.01"

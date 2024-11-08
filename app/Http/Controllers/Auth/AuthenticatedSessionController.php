@@ -22,13 +22,32 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(Request $request)
     {
-        $request->authenticate();
+        $request->validate([
+            'email' => ['required', 'string', 'email'],
+            'password' => ['required', 'string'],
+        ]);
 
-        $request->session()->regenerate();
+        // पहले यूजर को ईमेल से चेक करें
+        $user = \App\Models\User::where('email', $request->email)->first();
+        
+        // चेक करें कि यूजर मौजूद है और उसका स्टेटस 1 है
+        if ($user && $user->status != 1) {
+            return back()->withErrors([
+                'email' => 'Your Account is Inactive. Please Contact Admin.',
+            ]);
+        }
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        if (Auth::attempt($request->only('email', 'password'))) {
+            $request->session()->regenerate();
+
+            return redirect()->intended(RouteServiceProvider::HOME);
+        }
+
+        return back()->withErrors([
+            'email' => 'दिए गए क्रेडेंशियल्स हमारे रिकॉर्ड से मेल नहीं खाते।',
+        ]);
     }
 
     /**

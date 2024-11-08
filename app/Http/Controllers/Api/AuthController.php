@@ -63,7 +63,7 @@ class AuthController extends Controller
         if($check_role->role_id!=$credentials['role_id']){
             return response()->json(['message' => 'User are not aurthorised to login'], 400);
         }
-        $user = User::where('email', $credentials['email'])->first();
+        $user = User::where('email', $credentials['email'])->where('status',1)->first();
         if ($user && Hash::check($credentials['password'], $user->password)) {
             // Create a new token for the user
             $token = Str::random(60);

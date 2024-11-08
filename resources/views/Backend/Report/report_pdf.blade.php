@@ -40,7 +40,7 @@
             padding: 10px;
             text-align: left;
             border: 2px solid #333;
-            font-size: 5px;
+            font-size: 15px;
         }
 
         tbody td {
@@ -134,33 +134,52 @@
                 </tr>
             </thead>
             <tbody>
+                @php
+                    $grandTotalQuantity = 0;
+                    $grandTotalAmount = 0;
+                    $productTotals = array_fill(0, count($all_product), 0);
+                @endphp
                 @foreach($order as $order)
-                <tr>
-                    <td>{{ $order->user->name }}</td> <!-- Distributor Name or ID -->
-                    <td>{{ $order->order_no }}</td>
                     @php
-                        $totalQuantity = 0; // Initialize total quantity
-                        $totalAmount = 0;   // Initialize total amount
+                        $totalQuantity = 0;  // Initialize for each order
+                        $totalAmount = 0;    // Initialize for each order
                     @endphp
-                    @foreach($all_product as $product)
+                <tr>
+                    <td>{{ $order->user->name }}</td>
+                    <td>{{ $order->order_no }}</td>
+                    @foreach($all_product as $index => $product)
                         @php
-                            // Check if the orderDetails for the current product_no exists in the current order
                             $detail = $order->orderDetails->firstWhere('product_no', $product->product_no);
                         @endphp
                         @if($detail)
-                            <td>{{ $detail->product_quantity }}</td> <!-- Show quantity if product exists in order -->
+                            <td>{{ number_format($detail->product_quantity, 1) }}</td>
                             @php
-                                $totalQuantity += $detail->product_quantity; // Add to total quantity
-                                $totalAmount += $detail->amount; // Assuming there's a price field in $product
+                                $totalQuantity += $detail->product_quantity;
+                                $totalAmount += $detail->amount;
+                                $productTotals[$index] += $detail->product_quantity;
                             @endphp
                         @else
-                            <td></td> <!-- Otherwise, show 0 -->
+                            <td></td>
                         @endif
                     @endforeach
-                    <td>{{ $totalQuantity }}</td> <!-- Display total quantity -->
-                    <td>{{ $totalAmount }}</td>   <!-- Display total amount -->
+                    <td>{{ number_format($totalQuantity, 1) }}</td>
+                    <td>{{ number_format($totalAmount, 2) }}</td>
+                    @php
+                        $grandTotalQuantity += $totalQuantity;
+                        $grandTotalAmount += $totalAmount;
+                    @endphp
                 </tr>
                 @endforeach
+                <!-- Total Row -->
+                <tr style="font-weight: bold; background-color: #e6e6e6;">
+                    <td>Total</td>
+                    <td></td>
+                    @foreach($productTotals as $total)
+                        <td>{{ number_format($total, 1) }}</td>
+                    @endforeach
+                    <td>{{ number_format($grandTotalQuantity, 1) }}</td>
+                    <td>{{ number_format($grandTotalAmount, 2) }}</td>
+                </tr>
             </tbody>
         </table>
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\DriverController;
+namespace App\Http\Controllers\Api\AdminController;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -8,7 +8,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Api\Traits\ValidationTrait;
 
-class DriverReportController extends Controller
+class AdminReportController extends Controller
 {
     use ValidationTrait;
 
@@ -20,13 +20,12 @@ class DriverReportController extends Controller
             $all_product=Product::select('products.product_no','products.product_name','products.product_quantity as productWeight')->where('status',1)->get();
             $order = Order::with(['orderDetails', 'user'])
             ->where('order_date', '=', $request->date)
-            ->whereIn('order_status', [2, 3])
             ->get();
             return response()->json([
                 'status' => 'success',
                 'products' => $all_product,
                 'orders'=>$order,
-                'message' => 'Distributor retrieved successfully',
+                'message' => 'report retrieved successfully',
             ], 200); // HTTP 200 OK
         }
         else{

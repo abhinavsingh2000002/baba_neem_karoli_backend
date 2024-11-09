@@ -57,7 +57,7 @@ class AdminBillController extends Controller
             }
 
             // Retrieve the bills based on the query
-            $bills = $query->get();
+            $bills = $query->orderBy('bills.id','desc')->get();
 
             // Add the count of ordered items to each bill
             $bills->map(function ($bill) {

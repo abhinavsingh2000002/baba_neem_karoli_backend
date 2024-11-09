@@ -20,6 +20,5 @@ Route::prefix('addCred')->group(function(){
 });
 
 Route::prefix('report')->group(function(){
-    Route::post('reportProductListing',[DriverReportController::class,'reportProductListing'])->name('report.reportProductListing');
-    Route::post('reportListing',[DriverReportController::class,'reportListing'])->name('report.reportListing');
+      Route::post('reportListing',[DriverReportController::class,'reportListing'])->name('report.reportListing');
 });

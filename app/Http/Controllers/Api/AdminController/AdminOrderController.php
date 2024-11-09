@@ -57,7 +57,7 @@ class AdminOrderController extends Controller
             }
 
             // Retrieve the orders based on the query
-            $orders = $query->get();
+            $orders = $query->orderBy('orders.id','desc')->get();
 
             // Add the count of ordered items to each order
             $orders->map(function ($order) {

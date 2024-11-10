@@ -8,6 +8,8 @@ use App\Http\Controllers\Api\AdminController\AdminLaserController;
 use App\Http\Controllers\Api\AdminController\AdminCredController;
 use App\Http\Controllers\Api\AdminController\AdminDashboardController;
 use App\Http\Controllers\Api\AdminController\AdminReportController;
+use App\Http\Controllers\Api\AdminController\AdminDistributorController;    
+use App\Http\Controllers\Api\AdminController\AdminDriverController;
 
 Route::prefix('adminDashboard')->group(function(){
     Route::post('dashboard',[AdminDashboardController::class,'dashboard'])->name('adminDashboard.dashboard');
@@ -38,3 +40,21 @@ Route::prefix('adminCred')->group(function(){
 Route::prefix('adminReport')->group(function(){
     Route::post('reportListing',[AdminReportController::class,'reportListing'])->name('report.reportListing');
 });
+
+Route::prefix('adminDistributor')->group(function(){
+    Route::post('distributorListing',[AdminDistributorController::class,'distributorListing'])->name('adminDistributor.distributorListing');
+    Route::post('distributorDetailListing',[AdminDistributorController::class,'distributorDetailListing'])->name('adminDistributor.distributorDetailListing');
+    Route::post('addDistributor',[AdminDistributorController::class,'addDistributor'])->name('adminDistributor.addDistributor');
+    Route::post('updateDistributor',[AdminDistributorController::class,'updateDistributor'])->name('adminDistributor.updateDistributor');
+    Route::post('deleteOrRestoreDistributor',[AdminDistributorController::class,'deleteOrRestoreDistributor'])->name('adminDistributor.deleteOrRestoreDistributor');
+});
+
+Route::prefix('adminDriver')->group(function(){
+    Route::post('driverListing',[AdminDriverController::class,'driverListing'])->name('adminDriver.driverListing');
+    Route::post('driverDetailListing',[AdminDriverController::class,'driverDetailListing'])->name('adminDriver.driverDetailListing');
+    Route::post('addDriver',[AdminDriverController::class,'addDriver'])->name('adminDriver.addDriver');
+    Route::post('updateDriver',[AdminDriverController::class,'updateDriver'])->name('adminDriver.updateDriver');
+    Route::post('deleteOrRestoreDriver',[AdminDriverController::class,'deleteOrRestoreDriver'])->name('adminDriver.deleteOrRestoreDriver');
+});
+
+

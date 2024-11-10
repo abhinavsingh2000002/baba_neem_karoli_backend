@@ -31,7 +31,7 @@ class AuthenticatedSessionController extends Controller
 
         // पहले यूजर को ईमेल से चेक करें
         $user = \App\Models\User::where('email', $request->email)->first();
-        
+
         // चेक करें कि यूजर मौजूद है और उसका स्टेटस 1 है
         if ($user && $user->status != 1) {
             return back()->withErrors([

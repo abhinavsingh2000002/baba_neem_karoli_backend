@@ -36,7 +36,7 @@ class AdminDriverController extends Controller
                 $query->where('status', $request->status);
             }
 
-            $drivers = $query->get();
+            $drivers = $query->orderBy('id','desc')->get();
             
             return response()->json([
                 'status' => 'success',

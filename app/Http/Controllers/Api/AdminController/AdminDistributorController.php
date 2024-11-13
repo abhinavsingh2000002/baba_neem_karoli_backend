@@ -17,7 +17,6 @@ class AdminDistributorController extends Controller
         $user = $this->validate_user($request->connection_id, $request->auth_code);
         if($user){
             $query = User::where('role_id', '=', 2);
-            
             // Add search filters
             if($request->has('search')) {
                 $search = $request->search;
@@ -36,7 +35,7 @@ class AdminDistributorController extends Controller
                 $query->where('status', $request->status);
             }
 
-            $distributor = $query->get();
+            $distributor = $query->orderBy('id','desc')->get();
             
             return response()->json([
                 'status' => 'success',

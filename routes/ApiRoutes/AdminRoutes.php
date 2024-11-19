@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\AdminController\AdminDashboardController;
 use App\Http\Controllers\Api\AdminController\AdminReportController;
 use App\Http\Controllers\Api\AdminController\AdminDistributorController;    
 use App\Http\Controllers\Api\AdminController\AdminDriverController;
+use App\Http\Controllers\AdminController\AdminProductController;
 
 Route::prefix('adminDashboard')->group(function(){
     Route::post('dashboard',[AdminDashboardController::class,'dashboard'])->name('adminDashboard.dashboard');
@@ -55,6 +56,13 @@ Route::prefix('adminDriver')->group(function(){
     Route::post('addDriver',[AdminDriverController::class,'addDriver'])->name('adminDriver.addDriver');
     Route::post('updateDriver',[AdminDriverController::class,'updateDriver'])->name('adminDriver.updateDriver');
     Route::post('deleteOrRestoreDriver',[AdminDriverController::class,'deleteOrRestoreDriver'])->name('adminDriver.deleteOrRestoreDriver');
+});
+
+Route::prefix('adminProduct')->group(function(){
+    Route::post('productListing',[AdminProductController::class,'productListing'])->name('adminProduct.productListing');
+    Route::post('addProduct',[AdminProductController::class,'addProduct'])->name('adminProduct.addProduct');
+    Route::post('updateProduct',[AdminProductController::class,'updateProduct'])->name('adminProduct.updateProduct');
+    Route::post('deleteOrRestoreProduct',[AdminProductController::class,'deleteOrRestoreProduct'])->name('adminProduct.deleteOrRestoreProduct');
 });
 
 

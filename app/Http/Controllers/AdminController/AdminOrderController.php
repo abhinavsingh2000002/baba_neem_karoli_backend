@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use App\Models\MapProductPrice;
 use App\Models\ShoppingCart;
 use App\Models\Bill;
+use App\Models\Payment;
 
 class AdminOrderController extends Controller
 {
@@ -148,27 +149,48 @@ class AdminOrderController extends Controller
 
     public function updateStatus(Request $request)
     {
-        // dd($request);
-        $order_update_status=Order::findOrFail($request->order_id);
-        $order_update_status->order_status=$request->order_status;
-        if($request->order_status=='0'){
-            $order_update_status->order_failed_date=Carbon::now()->toDateString();
-            $order_update_status->order_failed_time=Carbon::now()->toTimeString();
+        $order_update_status = Order::findOrFail($request->order_id);
+        $order_update_status->order_status = $request->order_status;
+        
+        if($request->order_status == '0') {
+            $order_update_status->order_failed_date = Carbon::now()->toDateString();
+            $order_update_status->order_failed_time = Carbon::now()->toTimeString();
         }
-        else if($request->order_status=='1'){
-            $order_update_status->order_date=Carbon::now()->toDateString();
-            $order_update_status->order_time=Carbon::now()->toTimeString();
+        else if($request->order_status == '1') {
+            $order_update_status->order_date = Carbon::now()->toDateString();
+            $order_update_status->order_time = Carbon::now()->toTimeString();
         }
-        else if($request->order_status=='2'){
-            $order_update_status->order_confirm_date=Carbon::now()->toDateString();
-            $order_update_status->order_confirm_time=Carbon::now()->toTimeString();
+        else if($request->order_status == '2') {
+            $order_update_status->order_confirm_date = Carbon::now()->toDateString();
+            $order_update_status->order_confirm_time = Carbon::now()->toTimeString();
+            
+            // Only handle payment when order is confirmed
+            $existingPayment = Payment::where('user_id', $order_update_status->user_id)->first();
+
+            if ($existingPayment) {
+                // Update existing payment
+                $existingPayment->total_amount += $order_update_status->total_amount;
+                $existingPayment->amount_paid += $request->amount_paid;
+                $existingPayment->amount_due = $existingPayment->total_amount - $existingPayment->amount_paid;
+                $existingPayment->save();
+            } else {
+                // Create new payment
+                $payment = new Payment();
+                $payment->user_id = $order_update_status->user_id;
+                $payment->total_amount = $order_update_status->total_amount;
+                $payment->amount_paid = $request->amount_paid;
+                $payment->amount_due = $order_update_status->total_amount - $request->amount_paid;
+                $payment->save();
+            }
         }
-        else if($request->order_status='3'){
-            $order_update_status->order_deliverd_date=Carbon::now()->toDateString();
-            $order_update_status->order_deliverd_time=Carbon::now()->toTimeString();
+        else if($request->order_status == '3') {
+            $order_update_status->order_deliverd_date = Carbon::now()->toDateString();
+            $order_update_status->order_deliverd_time = Carbon::now()->toTimeString();
         }
+        
         $order_update_status->save();
-        return response()->json(['order_update_status'=>$order_update_status]);
+
+        return response()->json(['order_update_status' => $order_update_status]);
     }
 
     public function detailListing($id)

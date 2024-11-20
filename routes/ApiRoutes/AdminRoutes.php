@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\AdminController\AdminReportController;
 use App\Http\Controllers\Api\AdminController\AdminDistributorController;    
 use App\Http\Controllers\Api\AdminController\AdminDriverController;
 use App\Http\Controllers\AdminController\AdminProductController;
+use App\Http\Controllers\Api\AdminController\AdminMapProductController;
 
 Route::prefix('adminDashboard')->group(function(){
     Route::post('dashboard',[AdminDashboardController::class,'dashboard'])->name('adminDashboard.dashboard');
@@ -63,6 +64,14 @@ Route::prefix('adminProduct')->group(function(){
     Route::post('addProduct',[AdminProductController::class,'addProduct'])->name('adminProduct.addProduct');
     Route::post('updateProduct',[AdminProductController::class,'updateProduct'])->name('adminProduct.updateProduct');
     Route::post('deleteOrRestoreProduct',[AdminProductController::class,'deleteOrRestoreProduct'])->name('adminProduct.deleteOrRestoreProduct');
+});
+
+Route::prefix('mapProductPrice')->group(function(){
+    Route::post('mapProductPriceListing',[AdminMapProductController::class,'mapProductPriceListing'])->name('mapProductPrice.mapProductPriceListing');
+    Route::post('distrubutorListing',[AdminMapProductController::class,'distrubutorListing'])->name('mapProductPrice.distrubutorListing');
+    Route::post('productListing',[AdminMapProductController::class,'productListing'])->name('mapProductPrice.productListing');
+    Route::post('addMapProductPrice',[AdminMapProductController::class,'addMapProductPrice'])->name('mapProductPrice.addMapProductPrice');
+    Route::post('updateProductPrice',[AdminMapProductController::class,'updateProductPrice'])->name('mapProductPrice.updateProductPrice');
 });
 
 

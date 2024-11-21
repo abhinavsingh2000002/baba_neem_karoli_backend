@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\AdminController\AdminDistributorController;
 use App\Http\Controllers\Api\AdminController\AdminDriverController;
 use App\Http\Controllers\AdminController\AdminProductController;
 use App\Http\Controllers\Api\AdminController\AdminMapProductController;
+use App\Http\Controllers\Api\AdminController\AdminPaymentController;
 
 Route::prefix('adminDashboard')->group(function(){
     Route::post('dashboard',[AdminDashboardController::class,'dashboard'])->name('adminDashboard.dashboard');
@@ -75,3 +76,8 @@ Route::prefix('mapProductPrice')->group(function(){
 });
 
 
+Route::prefix('adminPayment')->group(function(){
+    Route::post('distributorListing',[AdminPaymentController::class,'distributorListing'])->name('adminPayment.distributorListing');
+    Route::post('paymentListing',[AdminPaymentController::class,'paymentListing'])->name('adminPayment.paymentListing');
+    Route::post('addPayment',[AdminPaymentController::class,'addPayment'])->name('adminPayment.addPayment');
+});

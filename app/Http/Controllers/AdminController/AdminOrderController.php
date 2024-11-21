@@ -163,25 +163,6 @@ class AdminOrderController extends Controller
         else if($request->order_status == '2') {
             $order_update_status->order_confirm_date = Carbon::now()->toDateString();
             $order_update_status->order_confirm_time = Carbon::now()->toTimeString();
-            
-            // Only handle payment when order is confirmed
-            $existingPayment = Payment::where('user_id', $order_update_status->user_id)->first();
-
-            if ($existingPayment) {
-                // Update existing payment
-                $existingPayment->total_amount += $order_update_status->total_amount;
-                $existingPayment->amount_paid += $request->amount_paid;
-                $existingPayment->amount_due = $existingPayment->total_amount - $existingPayment->amount_paid;
-                $existingPayment->save();
-            } else {
-                // Create new payment
-                $payment = new Payment();
-                $payment->user_id = $order_update_status->user_id;
-                $payment->total_amount = $order_update_status->total_amount;
-                $payment->amount_paid = $request->amount_paid;
-                $payment->amount_due = $order_update_status->total_amount - $request->amount_paid;
-                $payment->save();
-            }
         }
         else if($request->order_status == '3') {
             $order_update_status->order_deliverd_date = Carbon::now()->toDateString();

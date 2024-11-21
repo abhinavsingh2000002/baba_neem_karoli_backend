@@ -43,7 +43,8 @@ class AdminLaserController extends Controller
             $query = Bill::select('bills.bill_no', 'bills.order_no', 'bills.bill_date', 'bills.bill_time', 
                                  'orders.total_amount', 'orders.order_status', 'users.name')
                     ->join('orders', 'bills.order_id', '=', 'orders.id')
-                    ->join('users', 'bills.user_id', '=', 'users.id');
+                    ->join('users', 'bills.user_id', '=', 'users.id')
+                    ->whereIn('orders.order_status',[2,3]);
 
             // Apply date filter if provided
             if ($request->has('date')) {

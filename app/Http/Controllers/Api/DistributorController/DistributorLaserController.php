@@ -27,6 +27,7 @@ class DistributorLaserController extends Controller
             ->whereMonth('bill_date', $month)
               ->whereYear('bill_date', $year)
               ->where('bills.user_id', '=', $user)
+              ->whereIn('orders.order_status',[2,3])
               ->get();
               return response()->json([
                 'status' => 'success',

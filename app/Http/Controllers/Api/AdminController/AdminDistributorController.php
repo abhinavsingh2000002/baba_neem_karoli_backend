@@ -16,26 +16,41 @@ class AdminDistributorController extends Controller
     public function distributorListing(Request $request){
         $user = $this->validate_user($request->connection_id, $request->auth_code);
         if($user){
-            $query = User::where('role_id', '=', 2);
+            $query = User::where('users.role_id', '=', 2)
+                ->leftJoin('orders', 'users.id', '=', 'orders.user_id')
+                ->leftJoin('payments', 'users.id', '=', 'payments.user_id')
+                ->select(
+                    'users.*',
+                    \DB::raw('COALESCE((SELECT SUM(total_amount) FROM orders WHERE orders.user_id = users.id AND orders.order_status IN (2, 3)), 0.00) as total_order_amount'),
+                    \DB::raw('COALESCE((SELECT SUM(amount_paid) FROM payments WHERE payments.user_id = users.id), 0.00) as total_paid_amount'),
+                    \DB::raw('COALESCE((SELECT SUM(total_amount) FROM orders WHERE orders.user_id = users.id AND orders.order_status IN (2, 3)), 0.00) - COALESCE((SELECT SUM(amount_paid) FROM payments WHERE payments.user_id = users.id), 0.00) as outstanding_balance')
+                )
+                ->groupBy(
+                    'users.id', 'users.name', 'users.email', 'users.mobile', 'users.dob', 
+                    'users.aadhar_number', 'users.pan_number', 'users.image_path', 
+                    'users.address', 'users.role_id', 'users.status', 'users.password',
+                    'users.created_at', 'users.updated_at'
+                );
+
             // Add search filters
             if($request->has('search')) {
                 $search = $request->search;
                 $query->where(function($q) use ($search) {
-                    $q->where('name', 'LIKE', "%{$search}%")
-                      ->orWhere('email', 'LIKE', "%{$search}%")
-                      ->orWhere('mobile', 'LIKE', "%{$search}%")
-                      ->orWhere('dob', 'LIKE', "%{$search}%")
-                      ->orWhere('aadhar_number', 'LIKE', "%{$search}%")
-                      ->orWhere('pan_number', 'LIKE', "%{$search}%");
+                    $q->where('users.name', 'LIKE', "%{$search}%")
+                      ->orWhere('users.email', 'LIKE', "%{$search}%")
+                      ->orWhere('users.mobile', 'LIKE', "%{$search}%")
+                      ->orWhere('users.dob', 'LIKE', "%{$search}%")
+                      ->orWhere('users.aadhar_number', 'LIKE', "%{$search}%")
+                      ->orWhere('users.pan_number', 'LIKE', "%{$search}%");
                 });
             }
 
             // Add status filter
             if($request->has('status')) {
-                $query->where('status', $request->status);
+                $query->where('users.status', $request->status);
             }
 
-            $distributor = $query->orderBy('id','desc')->get();
+            $distributor = $query->orderBy('users.id','desc')->get();
             
             return response()->json([
                 'status' => 'success',

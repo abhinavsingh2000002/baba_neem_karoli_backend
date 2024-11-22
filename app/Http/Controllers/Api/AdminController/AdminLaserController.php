@@ -9,6 +9,8 @@ use App\Models\Bill;
 use Carbon\Carbon;
 use App\Models\OrderDetail;
 use App\Models\User;
+use App\Models\Order;
+use App\Models\Payment;
 
 class AdminLaserController extends Controller
 {
@@ -46,23 +48,38 @@ class AdminLaserController extends Controller
                     ->join('users', 'bills.user_id', '=', 'users.id')
                     ->whereIn('orders.order_status',[2,3]);
 
+            $orderTotalAmountQuery = Order::whereIn('order_status',[2,3]);
+            $paidAmountQuery = Payment::select('amount_paid');
+
             // Apply date filter if provided
             if ($request->has('date')) {
                 $date = Carbon::createFromFormat('m-Y', $request->date);
                 $query->whereMonth('bill_date', $date->format('m'))
                       ->whereYear('bill_date', $date->format('Y'));
+                $orderTotalAmountQuery->whereMonth('created_at', $date->format('m'))
+                ->whereYear('created_at', $date->format('Y'));
+                $paidAmountQuery->whereMonth('created_at', $date->format('m'))
+                ->whereYear('created_at', $date->format('Y'));
             }
 
             // Apply distributor filter if provided
             if ($request->has('distributor_id')) {
                 $query->where('bills.user_id', $request->distributor_id);
+                $orderTotalAmountQuery->where('user_id', $request->distributor_id);
+                $paidAmountQuery->where('user_id', $request->distributor_id);
             }
 
             $bills = $query->orderBy('bills.id','desc')->get();
-
+            $orderTotalAmount = $orderTotalAmountQuery->sum('total_amount');
+            $paidAmount = $paidAmountQuery->sum('amount_paid');
+            $remainingAmount = number_format($orderTotalAmount - $paidAmount, 2);
+           
             return response()->json([
                 'status' => 'success',
                 'lasers' => $bills,
+                'orderTotalAmount' => $orderTotalAmount,
+                'paidAmount' => $paidAmount,
+                'dueAmount' => $remainingAmount,
                 'message' => 'Bills retrieved successfully',
             ], 200);
         }

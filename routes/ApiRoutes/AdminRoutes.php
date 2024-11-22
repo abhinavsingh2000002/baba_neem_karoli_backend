@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\AdminController\AdminDriverController;
 use App\Http\Controllers\AdminController\AdminProductController;
 use App\Http\Controllers\Api\AdminController\AdminMapProductController;
 use App\Http\Controllers\Api\AdminController\AdminPaymentController;
+use App\Http\Controllers\Api\AdminController\AdminOrderManagmentController;
 
 Route::prefix('adminDashboard')->group(function(){
     Route::post('dashboard',[AdminDashboardController::class,'dashboard'])->name('adminDashboard.dashboard');
@@ -80,4 +81,12 @@ Route::prefix('adminPayment')->group(function(){
     Route::post('distributorListing',[AdminPaymentController::class,'distributorListing'])->name('adminPayment.distributorListing');
     Route::post('paymentListing',[AdminPaymentController::class,'paymentListing'])->name('adminPayment.paymentListing');
     Route::post('addPayment',[AdminPaymentController::class,'addPayment'])->name('adminPayment.addPayment');
+});
+
+Route::prefix('adminOrderManagment')->group(function(){
+    Route::post('orderManagmentListing',[AdminOrderManagmentController::class,'orderManagmentListing'])->name('adminOrderManagment.orderManagmentListing');
+    Route::post('orderManagmentDetails',[AdminOrderManagmentController::class,'orderManagmentDetails'])->name('adminOrderManagment.orderManagmentDetails');
+    Route::post('updateOrderStatus',[AdminOrderManagmentController::class,'updateOrderStatus'])->name('adminOrderManagment.updateOrderStatus');
+    Route::post('updateOrderProducts',[AdminOrderManagmentController::class,'updateOrderProducts'])->name('adminOrderManagment.updateOrderProducts');
+    Route::post('productListing',[AdminOrderManagmentController::class,'productListing'])->name('adminOrderManagment.productListing');
 });

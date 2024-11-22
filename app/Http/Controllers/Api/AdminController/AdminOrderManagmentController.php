@@ -259,19 +259,19 @@ class AdminOrderManagmentController extends Controller
     {
         $user = $this->validate_user($request->connection_id, $request->auth_code);
         if($user)
-        {
-            $order = Order::find($orderId);
+        {   
+            $order = Order::find($request->order_id);
             $totalAmount = 0; // Initialize total amount
     
             // Loop through existing products to update or delete them
-            foreach ($request->details as $detailData) {
-                if (isset($detailData['delete']) && $detailData['delete']) {
+            foreach (json_decode($request->details) as $detailData) {
+                // dd($detailData->delete);
+                if (isset($detailData->delete) && $detailData->delete) {
                     // Delete the product if marked for removal
-                    OrderDetail::find($detailData['id'])->delete();
+                    OrderDetail::find($detailData->id)->delete();
                 } else {
                     // Update existing product
-                    $orderDetail = OrderDetail::find($detailData['id']);
-    
+                    $orderDetail = OrderDetail::find($detailData->id);
                     // Fetch product price
                     $product_price = MapProductPrice::select('price')
                                     ->where('product_id', $orderDetail->product_id)
@@ -279,20 +279,19 @@ class AdminOrderManagmentController extends Controller
                                     ->first();
     
                     // Update product quantity and amount in OrderDetail
-                    $orderDetail->product_quantity = $detailData['quantity'];
-                    $orderDetail->amount = $detailData['quantity'] * $product_price->price;
+                    $orderDetail->product_quantity = $detailData->quantity;
+                    $orderDetail->amount = $detailData->quantity * $product_price->price;
                     $orderDetail->save();
-    
+                    // dd($orderDetail);
                     // Add the amount of this product to the total order amount
                     $totalAmount += $orderDetail->amount;
                 }
             }
-    
+            
             // Handle new products if any
             if ($request->has('new_products')) {
-                $newProductIds = $request->new_products['product_id']; // Get all product IDs
-                $newQuantities = $request->new_products['quantity']; // Get corresponding quantities
-    
+                $newProductIds = json_decode($request->new_products)->product_id; // Get all product IDs
+                $newQuantities = json_decode($request->new_products)->quantity; // Get corresponding quantities
                 foreach ($newProductIds as $index => $productId) {
                     $quantity = $newQuantities[$index]; // Get the corresponding quantity for this product
     
@@ -327,6 +326,17 @@ class AdminOrderManagmentController extends Controller
             // Update the total amount in the Order table
             $order->total_amount = $totalAmount;
             $order->save();
+            return response()->json([
+                'status' => 'success',
+                'order' => $order,
+                'message' => 'Order products updated successfully',
+            ]);
+        }
+        else {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not authenticated',
+            ], 401);
         }
     }
 }

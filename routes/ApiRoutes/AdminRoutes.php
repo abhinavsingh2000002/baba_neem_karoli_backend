@@ -89,4 +89,11 @@ Route::prefix('adminOrderManagment')->group(function(){
     Route::post('updateOrderStatus',[AdminOrderManagmentController::class,'updateOrderStatus'])->name('adminOrderManagment.updateOrderStatus');
     Route::post('updateOrderProducts',[AdminOrderManagmentController::class,'updateOrderProducts'])->name('adminOrderManagment.updateOrderProducts');
     Route::post('productListing',[AdminOrderManagmentController::class,'productListing'])->name('adminOrderManagment.productListing');
+    Route::post('distributorListing',[AdminOrderManagmentController::class,'distributorListing'])->name('adminOrderManagment.distributorListing');
+    Route::post('productListingForDistributor',[AdminOrderManagmentController::class,'productListingForDistributor'])->name('adminOrderManagment.productListingForDistributor');
+    Route::post('addToCart',[AdminOrderManagmentController::class,'addToCart'])->name('adminOrderManagment.addToCart');
+    Route::post('cartListing',[AdminOrderManagmentController::class,'cartListing'])->name('adminOrderManagment.cartListing');
+    Route::post('updateCartProductQuantity',[AdminOrderManagmentController::class,'updateCartProductQuantity'])->name('adminOrderManagment.updateCartProductQuantity');
+    Route::post('removeCartProduct',[AdminOrderManagmentController::class,'removeCartProduct'])->name('adminOrderManagment.removeCartProduct');
+    Route::post('orderPlaced',[AdminOrderManagmentController::class,'orderPlaced'])->name('adminOrderManagment.orderPlaced');
 });

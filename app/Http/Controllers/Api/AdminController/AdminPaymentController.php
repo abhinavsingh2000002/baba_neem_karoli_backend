@@ -37,8 +37,10 @@ class AdminPaymentController extends Controller
             }
 
             // Search by date if provided
-            if ($request->has('date')) {
-                $query->whereRaw('DATE(payments.created_at) LIKE ?', ['%' . $request->date . '%']);
+            if ($request->has('start_date') && $request->has('end_date')) {
+                $start_date = $request->input('start_date');
+                $end_date = $request->input('end_date') . ' 23:59:59';
+                $query->whereBetween('payments.created_at', [$start_date, $end_date]);
             }
 
             $payment = $query->get();

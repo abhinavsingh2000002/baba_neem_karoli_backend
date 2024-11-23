@@ -77,7 +77,7 @@ class DriverAllotedTaskController extends Controller
 
                     // Create a new Cred record
                     $cred = new Cred();
-                    $cred->cred_in = $totalbox;
+                    $cred->cred_in = $request->cred_in;
                     $cred->cred_out = $request->cred_out;
                     $cred->date = Carbon::now()->toDateString();
                     $cred->time = Carbon::now()->toTimeString();

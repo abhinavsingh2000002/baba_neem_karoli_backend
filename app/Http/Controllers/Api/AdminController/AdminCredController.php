@@ -44,11 +44,12 @@ class AdminCredController extends Controller
         ->join('users as u','creds.user_id','=','u.id');
 
         // Check if a date is provided in the request
-        if ($request->has('date')) {
+        if ($request->has('start_date') && $request->has('end_date')) {
             // Validate and format the date if needed
-            $date = $request->input('date');
+            $start_date = $request->input('start_date');
+            $end_date = $request->input('end_date');
             // Assuming bill_date is stored as a date
-            $query->whereDate('date', $date);
+            $query->whereBetween('date', [$start_date, $end_date]);
         }
 
          // Apply distributor filter if provided
@@ -58,9 +59,18 @@ class AdminCredController extends Controller
 
         // Retrieve the bills based on the query
         $creds = $query->orderBy('creds.id','desc')->get();
+        
+        // Calculate totals
+        $total_cred_in = $creds->sum('cred_in');
+        $total_cred_out = $creds->sum('cred_out');
+        $total_cred_balance = $total_cred_in - $total_cred_out;
+
         return response()->json([
             'status' => 'success',
             'creds' => $creds,
+            'total_cred_in' => $total_cred_in,
+            'total_cred_out' => $total_cred_out,
+            'total_cred_balance' => $total_cred_balance,
             'message' => 'creds retrieved successfully',
         ], 200); // HTTP 200 OK
     }

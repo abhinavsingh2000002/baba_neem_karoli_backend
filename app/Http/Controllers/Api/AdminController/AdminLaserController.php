@@ -72,7 +72,7 @@ class AdminLaserController extends Controller
             $bills = $query->orderBy('bills.id','desc')->get();
             $orderTotalAmount = $orderTotalAmountQuery->sum('total_amount');
             $paidAmount = $paidAmountQuery->sum('amount_paid');
-            $remainingAmount = number_format($orderTotalAmount - $paidAmount, 2);
+            $remainingAmount = round($orderTotalAmount - $paidAmount, 2);
            
             return response()->json([
                 'status' => 'success',

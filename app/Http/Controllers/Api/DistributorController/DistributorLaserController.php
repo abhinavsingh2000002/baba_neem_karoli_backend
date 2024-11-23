@@ -41,7 +41,7 @@ class DistributorLaserController extends Controller
               ->whereMonth('created_at', $month)
               ->whereYear('created_at', $year)
               ->sum('amount_paid');
-              $remainingAmount = number_format($orderTotalAmount - $paidAmount, 2);
+              $remainingAmount = round($orderTotalAmount - $paidAmount, 2);
               return response()->json([
                 'status' => 'success',
                 'lasers'=>$bills,

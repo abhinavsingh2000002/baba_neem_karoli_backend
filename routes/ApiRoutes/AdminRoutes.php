@@ -105,4 +105,5 @@ Route::prefix('adminDriverTask')->group(function(){
     Route::post('driverTaskListing',[AdminDriverTaskController::class,'driverTaskListing'])->name('adminDriverTask.driverTaskListing');
     Route::post('fetchOrderForAssignTask',[AdminDriverTaskController::class,'fetchOrderForAssignTask'])->name('adminDriverTask.fetchOrderForAssignTask');
     Route::post('assignTask',[AdminDriverTaskController::class,'assignTask'])->name('adminDriverTask.assignTask');
+    Route::post('updateAssignTask',[AdminDriverTaskController::class,'updateAssignTask'])->name('adminDriverTask.updateAssignTask');
 });

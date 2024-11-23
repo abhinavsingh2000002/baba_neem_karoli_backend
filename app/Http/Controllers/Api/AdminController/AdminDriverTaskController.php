@@ -58,7 +58,7 @@ class AdminDriverTaskController extends Controller
         $user = $this->validate_user($request->connection_id, $request->auth_code);
         if($user)
         {
-            $query = DriverTask::select('driver.name as driverName','distributor.name as distributorName','driver_tasks.order_no','driver_tasks.task_alloted_date','driver_tasks.task_alloted_time','driver_tasks.status')
+            $query = DriverTask::select('driver_tasks.id as driverTaskId','driver.name as driverName','distributor.name as distributorName','driver_tasks.order_no','driver_tasks.task_alloted_date','driver_tasks.task_alloted_time','driver_tasks.status')
             ->join('users as driver','driver_tasks.driver_id','=','driver.id')
             ->join('users as distributor','driver_tasks.user_id','=','distributor.id');
             if($request->has('date'))
@@ -136,6 +136,28 @@ class AdminDriverTaskController extends Controller
                 'status' => 'success',
                 'driverTask' => $driverTask,
                 'message' => 'Task assigned successfully',
+            ]);
+        }
+        else {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not authenticated',
+            ], 401); // HTTP 401 Unauthorized
+        }
+    }
+
+    public function updateAssignTask(Request $request)
+    {
+        $user = $this->validate_user($request->connection_id, $request->auth_code);
+        if($user)
+        {
+            $driverTask = DriverTask::find($request->driver_task_id);
+            $driverTask->driver_id = $request->driver_id;
+            $driverTask->save();
+            return response()->json([
+                'status' => 'success',
+                'driverTask' => $driverTask,
+                'message' => 'Task updated successfully',
             ]);
         }
         else {

@@ -14,6 +14,7 @@ use App\Http\Controllers\AdminController\AdminProductController;
 use App\Http\Controllers\Api\AdminController\AdminMapProductController;
 use App\Http\Controllers\Api\AdminController\AdminPaymentController;
 use App\Http\Controllers\Api\AdminController\AdminOrderManagmentController;
+use App\Http\Controllers\Api\AdminController\AdminDriverTaskController;
 
 Route::prefix('adminDashboard')->group(function(){
     Route::post('dashboard',[AdminDashboardController::class,'dashboard'])->name('adminDashboard.dashboard');
@@ -96,4 +97,12 @@ Route::prefix('adminOrderManagment')->group(function(){
     Route::post('updateCartProductQuantity',[AdminOrderManagmentController::class,'updateCartProductQuantity'])->name('adminOrderManagment.updateCartProductQuantity');
     Route::post('removeCartProduct',[AdminOrderManagmentController::class,'removeCartProduct'])->name('adminOrderManagment.removeCartProduct');
     Route::post('orderPlaced',[AdminOrderManagmentController::class,'orderPlaced'])->name('adminOrderManagment.orderPlaced');
+});
+
+Route::prefix('adminDriverTask')->group(function(){
+    Route::post('driverListing',[AdminDriverTaskController::class,'driverListing'])->name('adminDriverTask.driverListing');
+    Route::post('driverListingForAssignTask',[AdminDriverTaskController::class,'driverListingForAssignTask'])->name('adminDriverTask.driverListingForAssignTask');
+    Route::post('driverTaskListing',[AdminDriverTaskController::class,'driverTaskListing'])->name('adminDriverTask.driverTaskListing');
+    Route::post('fetchOrderForAssignTask',[AdminDriverTaskController::class,'fetchOrderForAssignTask'])->name('adminDriverTask.fetchOrderForAssignTask');
+    Route::post('assignTask',[AdminDriverTaskController::class,'assignTask'])->name('adminDriverTask.assignTask');
 });

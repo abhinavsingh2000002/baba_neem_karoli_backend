@@ -8,6 +8,8 @@ use App\Api\Traits\ValidationTrait;
 use App\Models\Bill;
 use Carbon\Carbon;
 use App\Models\OrderDetail;
+use App\Models\Order;
+use App\Models\Payment;
 
 class DistributorLaserController extends Controller
 {
@@ -29,10 +31,24 @@ class DistributorLaserController extends Controller
               ->where('bills.user_id', '=', $user)
               ->whereIn('orders.order_status',[2,3])
               ->get();
+              $orderTotalAmount = Order::where('user_id', $user)
+              ->whereIn('order_status', [2, 3])
+              ->whereMonth('order_date', $month)
+              ->whereYear('order_date', $year)
+              ->sum('total_amount');
+
+              $paidAmount = Payment::where('user_id', $user)
+              ->whereMonth('created_at', $month)
+              ->whereYear('created_at', $year)
+              ->sum('amount_paid');
+              $remainingAmount = number_format($orderTotalAmount - $paidAmount, 2);
               return response()->json([
                 'status' => 'success',
                 'lasers'=>$bills,
                 'message' => 'Bills retrieved successfully',
+                'orderTotalAmount' => $orderTotalAmount,
+                'paidAmount' => $paidAmount,
+                'remainingAmount' => $remainingAmount,
             ], 200); // HTTP 200 OK
         }
         else{

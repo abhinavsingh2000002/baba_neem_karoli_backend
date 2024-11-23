@@ -23,10 +23,22 @@ class DistributorPaymentController extends Controller
                 'users.name as distributorName',
                 'payments.created_at as payment_date',
                 'payments.amount_paid',
-                \DB::raw('(SELECT SUM(total_amount) FROM orders WHERE orders.user_id = payments.user_id AND orders.created_at <= payments.created_at AND orders.order_status IN (2, 3)) as orderTotalAmount'),
-                \DB::raw('(SELECT SUM(amount_paid) FROM payments p2 WHERE p2.user_id = payments.user_id AND p2.created_at <= payments.created_at) as totalPaidTillDate'),
-                \DB::raw('(SELECT SUM(total_amount) FROM orders WHERE orders.user_id = payments.user_id AND orders.created_at <= payments.created_at AND orders.order_status IN (2, 3)) - 
-                         (SELECT SUM(amount_paid) FROM payments p2 WHERE p2.user_id = payments.user_id AND p2.created_at <= payments.created_at) as remainingAmount')
+                \DB::raw('(SELECT COALESCE(SUM(total_amount), 0) FROM orders WHERE orders.user_id = payments.user_id AND orders.created_at <= payments.created_at AND orders.order_status IN (2, 3)) as orderTotalAmount'),
+                \DB::raw('(SELECT COALESCE(SUM(amount_paid), 0) FROM payments p2 WHERE p2.user_id = payments.user_id AND p2.created_at <= payments.created_at) as totalPaidTillDate'),
+                \DB::raw('CASE 
+                    WHEN COALESCE((SELECT SUM(total_amount) FROM orders WHERE orders.user_id = payments.user_id AND orders.created_at <= payments.created_at AND orders.order_status IN (2, 3)), 0) >
+                         COALESCE((SELECT SUM(amount_paid) FROM payments p2 WHERE p2.user_id = payments.user_id AND p2.created_at <= payments.created_at), 0)
+                    THEN COALESCE((SELECT SUM(total_amount) FROM orders WHERE orders.user_id = payments.user_id AND orders.created_at <= payments.created_at AND orders.order_status IN (2, 3)), 0) - 
+                         COALESCE((SELECT SUM(amount_paid) FROM payments p2 WHERE p2.user_id = payments.user_id AND p2.created_at <= payments.created_at), 0)
+                    ELSE 0
+                END as remainingAmount'),
+                \DB::raw('CASE 
+                    WHEN COALESCE((SELECT SUM(amount_paid) FROM payments p2 WHERE p2.user_id = payments.user_id AND p2.created_at <= payments.created_at), 0) >
+                         COALESCE((SELECT SUM(total_amount) FROM orders WHERE orders.user_id = payments.user_id AND orders.created_at <= payments.created_at AND orders.order_status IN (2, 3)), 0)
+                    THEN COALESCE((SELECT SUM(amount_paid) FROM payments p2 WHERE p2.user_id = payments.user_id AND p2.created_at <= payments.created_at), 0) -
+                         COALESCE((SELECT SUM(total_amount) FROM orders WHERE orders.user_id = payments.user_id AND orders.created_at <= payments.created_at AND orders.order_status IN (2, 3)), 0)
+                    ELSE 0
+                END as advanceAmount')
             )
             ->join('users', 'users.id', '=', 'payments.user_id')
             ->where('payments.user_id', $user)
@@ -49,9 +61,17 @@ class DistributorPaymentController extends Controller
                 'total_paid_amount' => Payment::where('user_id', $user)
                     ->sum('amount_paid'),
             ];
+
+            // Calculate the difference
+            $difference = $summary['total_order_amount'] - $summary['total_paid_amount'];
             
-            // Calculate the total due amount and round to 2 decimal places
-            $summary['total_due_amount'] = number_format($summary['total_order_amount'] - $summary['total_paid_amount'], 2, '.', '');
+            if ($difference < 0) {
+                $summary['advance_amount'] = number_format(abs($difference), 2, '.', '');
+                $summary['total_due_amount'] = "0.00";
+            } else {
+                $summary['advance_amount'] = "0.00";
+                $summary['total_due_amount'] = number_format($difference, 2, '.', '');
+            }
 
             return response()->json([
                 'status' => 'success',

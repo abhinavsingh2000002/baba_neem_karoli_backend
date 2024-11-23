@@ -23,10 +23,22 @@ class AdminPaymentController extends Controller
                 'users.name as distributorName',
                 'payments.created_at as payment_date',
                 'payments.amount_paid',
-                \DB::raw('(SELECT SUM(total_amount) FROM orders WHERE orders.user_id = payments.user_id AND orders.created_at <= payments.created_at AND orders.order_status IN (2, 3)) as orderTotalAmount'),
-                \DB::raw('(SELECT SUM(amount_paid) FROM payments p2 WHERE p2.user_id = payments.user_id AND p2.created_at <= payments.created_at) as totalPaidTillDate'),
-                \DB::raw('(SELECT SUM(total_amount) FROM orders WHERE orders.user_id = payments.user_id AND orders.created_at <= payments.created_at AND orders.order_status IN (2, 3)) - 
-                         (SELECT SUM(amount_paid) FROM payments p2 WHERE p2.user_id = payments.user_id AND p2.created_at <= payments.created_at) as remainingAmount')
+                \DB::raw('COALESCE((SELECT SUM(total_amount) FROM orders WHERE orders.user_id = payments.user_id AND orders.created_at <= payments.created_at AND orders.order_status IN (2, 3)), 0) as orderTotalAmount'),
+                \DB::raw('COALESCE((SELECT SUM(amount_paid) FROM payments p2 WHERE p2.user_id = payments.user_id AND p2.created_at <= payments.created_at), 0) as totalPaidTillDate'),
+                \DB::raw('CASE 
+                    WHEN (COALESCE((SELECT SUM(total_amount) FROM orders WHERE orders.user_id = payments.user_id AND orders.created_at <= payments.created_at AND orders.order_status IN (2, 3)), 0) - 
+                         COALESCE((SELECT SUM(amount_paid) FROM payments p2 WHERE p2.user_id = payments.user_id AND p2.created_at <= payments.created_at), 0)) < 0 
+                    THEN 0 
+                    ELSE (COALESCE((SELECT SUM(total_amount) FROM orders WHERE orders.user_id = payments.user_id AND orders.created_at <= payments.created_at AND orders.order_status IN (2, 3)), 0) - 
+                         COALESCE((SELECT SUM(amount_paid) FROM payments p2 WHERE p2.user_id = payments.user_id AND p2.created_at <= payments.created_at), 0))
+                    END as remainingAmount'),
+                \DB::raw('CASE 
+                    WHEN (COALESCE((SELECT SUM(total_amount) FROM orders WHERE orders.user_id = payments.user_id AND orders.created_at <= payments.created_at AND orders.order_status IN (2, 3)), 0) - 
+                         COALESCE((SELECT SUM(amount_paid) FROM payments p2 WHERE p2.user_id = payments.user_id AND p2.created_at <= payments.created_at), 0)) < 0 
+                    THEN ABS(COALESCE((SELECT SUM(total_amount) FROM orders WHERE orders.user_id = payments.user_id AND orders.created_at <= payments.created_at AND orders.order_status IN (2, 3)), 0) - 
+                         COALESCE((SELECT SUM(amount_paid) FROM payments p2 WHERE p2.user_id = payments.user_id AND p2.created_at <= payments.created_at), 0))
+                    ELSE 0 
+                    END as advanceAmount')
             )
             ->join('users', 'users.id', '=', 'payments.user_id')
             ->orderBy('payments.created_at', 'DESC');
@@ -45,21 +57,55 @@ class AdminPaymentController extends Controller
 
             $payment = $query->get();
 
-            // Modify summary calculation
-            $summary = [
-                'total_order_amount' => Order::whereIn('order_status', [2, 3])
-                    ->when($request->has('distributor_id'), function($query) use ($request) {
-                        $query->where('user_id', $request->distributor_id);
-                    })
-                    ->sum('total_amount'),
-                'total_paid_amount' => Payment::when($request->has('distributor_id'), function($query) use ($request) {
-                        $query->where('user_id', $request->distributor_id);
-                    })
-                    ->sum('amount_paid'),
-            ];
-            
-            // Calculate the total due amount and round to 2 decimal places
-            $summary['total_due_amount'] = number_format($summary['total_order_amount'] - $summary['total_paid_amount'], 2, '.', '');
+            if ($request->has('distributor_id')) {
+                // Single distributor logic (existing)
+                $summary = [
+                    'total_order_amount' => Order::whereIn('order_status', [2, 3])
+                        ->where('user_id', $request->distributor_id)
+                        ->sum('total_amount'),
+                    'total_paid_amount' => Payment::where('user_id', $request->distributor_id)
+                        ->sum('amount_paid'),
+                ];
+                
+                $difference = $summary['total_order_amount'] - $summary['total_paid_amount'];
+                
+                if ($difference < 0) {
+                    $summary['advance_amount'] = number_format(abs($difference), 2, '.', '');
+                    $summary['total_due_amount'] = "0.00";
+                } else {
+                    $summary['advance_amount'] = "0.00";
+                    $summary['total_due_amount'] = number_format($difference, 2, '.', '');
+                }
+            } else {
+                // All distributors logic
+                $distributors = User::where('role_id', 2)->where('status', 1)->get();
+                $totalAdvance = 0;
+                $totalDue = 0;
+                
+                foreach ($distributors as $distributor) {
+                    $orderAmount = Order::whereIn('order_status', [2, 3])
+                        ->where('user_id', $distributor->id)
+                        ->sum('total_amount');
+                        
+                    $paidAmount = Payment::where('user_id', $distributor->id)
+                        ->sum('amount_paid');
+                        
+                    $difference = $orderAmount - $paidAmount;
+                    
+                    if ($difference < 0) {
+                        $totalAdvance += abs($difference);
+                    } else {
+                        $totalDue += $difference;
+                    }
+                }
+                
+                $summary = [
+                    'total_order_amount' => Order::whereIn('order_status', [2, 3])->sum('total_amount'),
+                    'total_paid_amount' => Payment::sum('amount_paid'),
+                    'advance_amount' => number_format($totalAdvance, 2, '.', ''),
+                    'total_due_amount' => number_format($totalDue, 2, '.', '')
+                ];
+            }
 
             return response()->json([
                 'status' => 'success',
@@ -107,30 +153,49 @@ class AdminPaymentController extends Controller
             
             $remainingAmount = $totalAmount - $paidAmount;
             
-            if($remainingAmount <= 0) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Payment cannot be accepted as the distributor has no due amount',
-                ], 400);
-            }
-            
-            if($request->paid_amount > $remainingAmount) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Payment amount cannot be greater than the remaining due amount of ' . $remainingAmount,
-                ], 400);
-            }
-            
             $payment = new Payment();
             $payment->user_id = $request->distributor_id;
             $payment->amount_paid = $request->paid_amount;
             $payment->save();
             
+            $message = $remainingAmount <= 0 ? 
+                'Advance payment added successfully' : 
+                'Payment added successfully';
+            
             return response()->json([
                 'status' => 'success',
-                'message' => 'Payment added successfully',
+                'message' => $message,
                 'payment' => $payment,
                 ], 200);
+        }
+        else {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not authenticated',
+            ], 401);
+        }
+    }
+
+    public function updatePayment(Request $request)
+    {
+        $user = $this->validate_user($request->connection_id, $request->auth_code);
+        if($user)
+        {
+            $payment = Payment::find($request->payment_id);
+            if(!$payment) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Payment not found',
+                ], 404);
+            }
+            $payment->user_id = $request->distributor_id;
+            $payment->amount_paid = $request->paid_amount;
+            $payment->save();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Payment updated successfully',
+                'payment' => $payment,
+            ], 200);
         }
         else {
             return response()->json([

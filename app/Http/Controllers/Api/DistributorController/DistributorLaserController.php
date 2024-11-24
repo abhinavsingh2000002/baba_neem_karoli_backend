@@ -41,14 +41,22 @@ class DistributorLaserController extends Controller
               ->whereMonth('created_at', $month)
               ->whereYear('created_at', $year)
               ->sum('amount_paid');
-              $remainingAmount = round($orderTotalAmount - $paidAmount, 2);
+              
+              $differenceAmount = round($orderTotalAmount - $paidAmount, 2);
+              $advanceAmount = 0;
+              $dueAmount = 0;
+              if ($differenceAmount < 0) {
+                $advanceAmount = number_format(abs($differenceAmount), 2, '.', '');
+                $dueAmount = "0.00";
+            }
               return response()->json([
                 'status' => 'success',
                 'lasers'=>$bills,
                 'message' => 'Bills retrieved successfully',
                 'orderTotalAmount' => $orderTotalAmount,
                 'paidAmount' => $paidAmount,
-                'remainingAmount' => $remainingAmount,
+                'advanceAmount' => $advanceAmount,
+                'remainingAmount' => $dueAmount,
             ], 200); // HTTP 200 OK
         }
         else{

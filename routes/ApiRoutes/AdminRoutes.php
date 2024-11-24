@@ -82,6 +82,8 @@ Route::prefix('adminPayment')->group(function(){
     Route::post('distributorListing',[AdminPaymentController::class,'distributorListing'])->name('adminPayment.distributorListing');
     Route::post('paymentListing',[AdminPaymentController::class,'paymentListing'])->name('adminPayment.paymentListing');
     Route::post('addPayment',[AdminPaymentController::class,'addPayment'])->name('adminPayment.addPayment');
+    Route::post('updatePayment',[AdminPaymentController::class,'updatePayment'])->name('adminPayment.updatePayment');
+    Route::post('deletePayment',[AdminPaymentController::class,'deletePayment'])->name('adminPayment.deletePayment');
 });
 
 Route::prefix('adminOrderManagment')->group(function(){

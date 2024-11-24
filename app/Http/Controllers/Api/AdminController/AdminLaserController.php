@@ -64,22 +64,58 @@ class AdminLaserController extends Controller
 
             // Apply distributor filter if provided
             if ($request->has('distributor_id')) {
-                $query->where('bills.user_id', $request->distributor_id);
-                $orderTotalAmountQuery->where('user_id', $request->distributor_id);
-                $paidAmountQuery->where('user_id', $request->distributor_id);
+                $bills = $query->orderBy('bills.id','desc')->get();
+                $orderTotalAmount = number_format($orderTotalAmountQuery->sum('total_amount'), 2, '.', '');
+                $paidAmount = number_format($paidAmountQuery->sum('amount_paid'), 2, '.', '');
+                $remainingAmount = number_format($orderTotalAmount - $paidAmount, 2, '.', '');
+                
+                $advanceAmount = "0.00";
+                $dueAmount = $remainingAmount;
+                if ($remainingAmount < 0) {
+                    $advanceAmount = number_format(abs($remainingAmount), 2, '.', '');
+                    $dueAmount = "0.00";
+                }
+            } else {
+                // All distributors case
+                $bills = $query->orderBy('bills.id','desc')->get();
+                $distributors = User::where('role_id', 2)->where('status', 1)->get();
+                
+                $orderTotalAmount = 0;
+                $paidAmount = 0;
+                $totalAdvanceAmount = 0;
+                $totalDueAmount = 0;
+
+                foreach ($distributors as $distributor) {
+                    $distributorOrderTotal = clone $orderTotalAmountQuery;
+                    $distributorPaidAmount = clone $paidAmountQuery;
+
+                    $distributorTotal = $distributorOrderTotal->where('user_id', $distributor->id)->sum('total_amount');
+                    $distributorPaid = $distributorPaidAmount->where('user_id', $distributor->id)->sum('amount_paid');
+                    $distributorRemaining = $distributorTotal - $distributorPaid;
+
+                    $orderTotalAmount += $distributorTotal;
+                    $paidAmount += $distributorPaid;
+
+                    if ($distributorRemaining < 0) {
+                        $totalAdvanceAmount += abs($distributorRemaining);
+                    } else {
+                        $totalDueAmount += $distributorRemaining;
+                    }
+                }
+
+                $orderTotalAmount = number_format($orderTotalAmount, 2, '.', '');
+                $paidAmount = number_format($paidAmount, 2, '.', '');
+                $advanceAmount = number_format($totalAdvanceAmount, 2, '.', '');
+                $dueAmount = number_format($totalDueAmount, 2, '.', '');
             }
 
-            $bills = $query->orderBy('bills.id','desc')->get();
-            $orderTotalAmount = $orderTotalAmountQuery->sum('total_amount');
-            $paidAmount = $paidAmountQuery->sum('amount_paid');
-            $remainingAmount = round($orderTotalAmount - $paidAmount, 2);
-           
             return response()->json([
                 'status' => 'success',
                 'lasers' => $bills,
                 'orderTotalAmount' => $orderTotalAmount,
                 'paidAmount' => $paidAmount,
-                'dueAmount' => $remainingAmount,
+                'dueAmount' => $dueAmount,
+                'advanceAmount' => $advanceAmount,
                 'message' => 'Bills retrieved successfully',
             ], 200);
         }

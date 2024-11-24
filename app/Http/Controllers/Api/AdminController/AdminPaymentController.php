@@ -19,6 +19,7 @@ class AdminPaymentController extends Controller
         if($user)
         {
             $query = Payment::select(
+                'payments.id as paymentId',
                 'payments.user_id',
                 'users.name as distributorName',
                 'payments.created_at as payment_date',
@@ -195,6 +196,26 @@ class AdminPaymentController extends Controller
                 'status' => 'success',
                 'message' => 'Payment updated successfully',
                 'payment' => $payment,
+            ], 200);
+        }
+        else {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not authenticated',
+            ], 401);
+        }
+    }
+
+    public function deletePayment(Request $request)
+    {
+        $user = $this->validate_user($request->connection_id, $request->auth_code);
+        if($user)
+        {
+            $payment = Payment::find($request->payment_id);
+            $payment->delete();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Payment deleted successfully',
             ], 200);
         }
         else {

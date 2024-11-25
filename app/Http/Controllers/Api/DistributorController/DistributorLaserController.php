@@ -48,7 +48,10 @@ class DistributorLaserController extends Controller
               if ($differenceAmount < 0) {
                 $advanceAmount = number_format(abs($differenceAmount), 2, '.', '');
                 $dueAmount = "0.00";
-            }
+              } else {
+                $dueAmount = number_format($differenceAmount, 2, '.', '');
+                $advanceAmount = "0.00";
+              }
               return response()->json([
                 'status' => 'success',
                 'lasers'=>$bills,

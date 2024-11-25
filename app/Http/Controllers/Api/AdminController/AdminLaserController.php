@@ -54,8 +54,8 @@ class AdminLaserController extends Controller
             // Apply date filter if provided
             if ($request->has('date')) {
                 $date = Carbon::createFromFormat('m-Y', $request->date);
-                $query->whereMonth('bill_date', $date->format('m'))
-                      ->whereYear('bill_date', $date->format('Y'));
+                $query->whereMonth('bills.bill_date', $date->format('m'))
+                      ->whereYear('bills.bill_date', $date->format('Y'));
                 $orderTotalAmountQuery->whereMonth('created_at', $date->format('m'))
                 ->whereYear('created_at', $date->format('Y'));
                 $paidAmountQuery->whereMonth('created_at', $date->format('m'))
@@ -64,17 +64,30 @@ class AdminLaserController extends Controller
 
             // Apply distributor filter if provided
             if ($request->has('distributor_id')) {
-                $bills = $query->orderBy('bills.id','desc')->get();
-                $orderTotalAmount = number_format($orderTotalAmountQuery->sum('total_amount'), 2, '.', '');
-                $paidAmount = number_format($paidAmountQuery->sum('amount_paid'), 2, '.', '');
-                $remainingAmount = number_format($orderTotalAmount - $paidAmount, 2, '.', '');
+                $distributorId = $request->distributor_id;
+                
+                // Add distributor filters to all queries
+                $query->where('bills.user_id', $distributorId);
+                $orderTotalAmountQuery->where('user_id', $distributorId);
+                $paidAmountQuery->where('user_id', $distributorId);
+                
+                $bills = $query->orderBy('bills.id', 'desc')->get();
+                
+                // Calculate amounts for specific distributor
+                $orderTotalAmount = $orderTotalAmountQuery->sum('total_amount');
+                $paidAmount = $paidAmountQuery->sum('amount_paid');
+                $remainingAmount = $orderTotalAmount - $paidAmount;
                 
                 $advanceAmount = "0.00";
-                $dueAmount = $remainingAmount;
+                $dueAmount = number_format($remainingAmount, 2, '.', '');
+                
                 if ($remainingAmount < 0) {
                     $advanceAmount = number_format(abs($remainingAmount), 2, '.', '');
                     $dueAmount = "0.00";
                 }
+                
+                $orderTotalAmount = number_format($orderTotalAmount, 2, '.', '');
+                $paidAmount = number_format($paidAmount, 2, '.', '');
             } else {
                 // All distributors case
                 $bills = $query->orderBy('bills.id','desc')->get();

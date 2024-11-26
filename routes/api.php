@@ -12,7 +12,8 @@ Route::get('/user', function (Request $request) {
 Route::prefix('auth')->group(function(){
     Route::post('get_connection_id',[AuthController::class,'get_connection_id']);
     Route::post('login',[AuthController::class,'login']);
-    ROute::post('logout',[AuthController::class,'logout']);
+    Route::post('logout',[AuthController::class,'logout']);
+    Route::post('editProfile',[AuthController::class,'editProfile']);
 });
 
 Route::prefix('user')->group(function(){

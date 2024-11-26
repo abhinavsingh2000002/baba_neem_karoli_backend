@@ -133,6 +133,101 @@ class AuthController extends Controller
         }
     }
 
+    public function editProfile(Request $request)
+    {
+        $user_id = $this->validate_user($request->connection_id, $request->auth_code);
+        if($user_id)
+        {       
+            // dd($request->image_path);
+            $user = User::find($user_id);
+            
+            // Validation rules with unique check excluding current user
+            $validator = Validator::make($request->all(), [
+                'name' => $request->has('name') ? 'required|string|max:255' : '',
+                'email' => $request->has('email') ? 'required|email' : '',
+                'mobile' => $request->has('mobile') ? 'required|string|max:10' : '',
+                'dob' => $request->has('dob') ? 'nullable|date_format:Y-m-d' : '',
+                'aadhar_number' => $request->has('aadhar_number') ? 'required|string|max:12' : '',
+                'pan_number' => $request->has('pan_number') ? 'nullable|string|regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/' : '',
+                'image_path' => $request->has('image_path') ? 'nullable|image|mimes:jpeg,png,jpg|max:5120' : '',
+                'address' => $request->has('address') ? 'required|string' : '',
+            ], [
+                'pan_number.regex' => 'PAN number must be in this format: ABCDE1234F (first 5 capital letters, then 4 numbers, ending with 1 capital letter)'
+            ]);
+
+            if($validator->fails()){
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $validator->errors(),
+                ], 400);
+            }
+            // Handle image upload if new image is provided
+            if ($request->hasFile('image_path')) {
+                // Delete old image if exists
+                if ($user->image_path && file_exists(public_path($user->image_path))) {
+                    unlink(public_path($user->image_path));
+                }
+                
+                $image = $request->file('image_path');
+                $currentDateTime = now()->format('Y-m-d_H-i-s');
+                
+                // Determine upload directory based on role_id
+                $uploadDir = match ($user->role_id) {
+                    1 => 'uploads/admin',
+                    2 => 'uploads/distributor',
+                    3 => 'uploads/driver',
+                    default => 'uploads/unknown'
+                };
+                $imageName = $request->name . '_' . $request->email . '_' . $currentDateTime . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path($uploadDir), $imageName);
+                $request->merge(['image_path' => $uploadDir . '/' . $imageName]);
+                $user->image_path = $uploadDir . '/' . $imageName;
+            }
+            if($request->has('name'))
+            {
+                $user->name = $request->name;
+            }
+            if($request->has('email'))
+            {
+                $user->email = $request->email;
+            }
+            if($request->has('mobile'))
+            {
+                $user->mobile = $request->mobile;
+            }
+            if($request->has('dob'))
+            {
+                $user->dob = $request->dob;
+            }
+            if($request->has('aadhar_number'))
+            {
+                $user->aadhar_number = $request->aadhar_number;
+            }
+            if($request->has('pan_number'))
+            {
+                $user->pan_number = $request->pan_number;
+            }
+            if($request->has('address'))
+            {
+                $user->address = $request->address;
+            }
+            $user->save();
+            
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Profile updated successfully',
+                'user' => $user
+            ], 200);
+        }
+        else
+        {
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'User not authenticated',
+            ], 401);
+        }
+    }
+
 
 
     // public function loginSubmit(Request $request)

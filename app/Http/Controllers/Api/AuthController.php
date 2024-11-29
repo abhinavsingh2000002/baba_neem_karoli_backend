@@ -59,40 +59,60 @@ class AuthController extends Controller
         }
 
         $credentials = $request->only('email', 'password','role_id');
-        $check_role=User::where('email',$credentials['email'])->first();
-        if($check_role->role_id!=$credentials['role_id']){
-            return response()->json(['message' => 'User are not aurthorised to login'], 400);
-        }
-        $user = User::where('email', $credentials['email'])->where('status',1)->first();
-        if ($user && Hash::check($credentials['password'], $user->password)) {
-            // Create a new token for the user
-            $token = Str::random(60);
-            $user->remember_token = $token;
-            $user->save();
-
-            $authCode = Str::random(20);
-            $helo=ConnectionRequest::where('connection_id',$request->connection_id)->update([
-                'auth_code' => $authCode,
-                'user_id' => $user->id,
-            ]);
+        
+        // First check if user exists
+        $user = User::where('email', $credentials['email'])->first();
+        if (!$user) {
             return response()->json([
-                'status' => 'success',
-                'message' => 'User Login Successful',
-                'auth_code' => $authCode,
-                'user_id' => $user->id,
-                'user_name' => $user->name,
-                'user_email' => $user->email,
-                'user_detail'=>$user,
-                // 'phone' => $user->mobile,
-                // 'city' => $user->city,
-                // 'state' => $user->user_state,
-                // 'address' => $user->address,
-                // 'image' => $user->pic,
-                // 'gender' => $user->gender,
-            ], 200);
-        } else {
-            return response()->json(['message' => 'Invalid credentials'], 401);
+                'status' => 'error',
+                'message' => 'Invalid user email. Please check your email address.'
+            ], 401);
         }
+
+        // Check role
+        if ($user->role_id != $credentials['role_id']) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User is not authorized to login'
+            ], 400);
+        }
+
+        // Check status
+        if (!$user->status) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User account is inactive'
+            ], 401);
+        }
+
+        // Check password
+        if (!Hash::check($credentials['password'], $user->password)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Incorrect password. Please try again.'
+            ], 401);
+        }
+
+        // If we get here, everything is valid
+        $token = Str::random(60);
+        $user->remember_token = $token;
+        $user->save();
+
+        $authCode = Str::random(20);
+        ConnectionRequest::where('connection_id', $request->connection_id)->update([
+            'auth_code' => $authCode,
+            'user_id' => $user->id,
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'User Login Successful',
+            'auth_code' => $authCode,
+            'user_id' => $user->id,
+            'user_name' => $user->name,
+            'user_email' => $user->email,
+            'user_detail' => $user,
+        ], 200);
     }
 
     public function validate_user($connection_id, $auth_code)

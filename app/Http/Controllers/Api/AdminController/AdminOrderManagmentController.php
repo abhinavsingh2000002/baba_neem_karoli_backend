@@ -84,7 +84,7 @@ class AdminOrderManagmentController extends Controller
                     'message' => 'Order not found',
                 ], 404);
             }
-        }  
+        }
         else {
             return response()->json([
                 'status' => 'error',
@@ -135,7 +135,7 @@ class AdminOrderManagmentController extends Controller
     {
         $user = $this->validate_user($request->connection_id, $request->auth_code);
         if($user)
-        {   
+        {
             $order=Order::find($request->order_id);
             $products = MapProductPrice::select('products.id as productId','products.product_name','products.product_no','products.product_quantity','products.item_per_cred','map_product_prices.price')->join('products','map_product_prices.product_id','=','products.id')
             ->where('user_id',$order->user_id)->where('products.status','=',1)->get();
@@ -158,10 +158,10 @@ class AdminOrderManagmentController extends Controller
     {
         $user = $this->validate_user($request->connection_id, $request->auth_code);
         if($user)
-        {   
+        {
             $order = Order::find($request->order_id);
             $totalAmount = 0; // Initialize total amount
-    
+
             // Loop through existing products to update or delete them
             foreach (json_decode($request->details) as $detailData) {
                 // dd($detailData->delete);
@@ -176,7 +176,7 @@ class AdminOrderManagmentController extends Controller
                                     ->where('product_id', $orderDetail->product_id)
                                     ->where('user_id', $orderDetail->user_id)
                                     ->first();
-    
+
                     // Update product quantity and amount in OrderDetail
                     $orderDetail->product_quantity = $detailData->quantity;
                     $orderDetail->amount = $detailData->quantity * $product_price->price;
@@ -186,14 +186,14 @@ class AdminOrderManagmentController extends Controller
                     $totalAmount += $orderDetail->amount;
                 }
             }
-            
+
             // Handle new products if any
             if ($request->has('new_products')) {
                 $newProductIds = json_decode($request->new_products)->product_id; // Get all product IDs
                 $newQuantities = json_decode($request->new_products)->quantity; // Get corresponding quantities
                 foreach ($newProductIds as $index => $productId) {
                     $quantity = $newQuantities[$index]; // Get the corresponding quantity for this product
-    
+
                     $product = MapProductPrice::select('map_product_prices.price', 'products.*')
                         ->join('products', 'map_product_prices.product_id', '=', 'products.id')
                         ->where('map_product_prices.user_id', $order->user_id)
@@ -216,7 +216,7 @@ class AdminOrderManagmentController extends Controller
                         $orderDetail->item_per_cred = $product->item_per_cred;
                         $orderDetail->amount = $quantity * $product->price; // Calculate amount based on quantity
                         $orderDetail->save();
-    
+
                         // Add the amount of this new product to the total order amount
                         $totalAmount += $orderDetail->amount;
                     }
@@ -240,7 +240,7 @@ class AdminOrderManagmentController extends Controller
     }
 
     public function distributorListing(Request $request)
-    {  
+    {
         $user = $this->validate_user($request->connection_id, $request->auth_code);
         if($user)
         {
@@ -337,7 +337,7 @@ class AdminOrderManagmentController extends Controller
         }
     }
 
-    
+
     public function updateCartProductQuantity(Request $request)
     {
         $user = $this->validate_user($request->connection_id, $request->auth_code);
@@ -414,12 +414,12 @@ class AdminOrderManagmentController extends Controller
             }
 
             // Check if the current time is within the allowed time range
-            // if ($currentTime->lt($startTime) || $currentTime->gt($endTime)) {
-            //     return response()->json([
-            //         'status' => 'error',
-            //         'message' => 'Orders can only be placed between 6:00 AM to 7:00 PM.'
-            //     ], 400); // HTTP status code 400 Bad Request
-            // }
+            if ($currentTime->lt($startTime) || $currentTime->gt($endTime)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Orders can only be placed between 6:00 AM to 7:00 PM.'
+                ], 400); // HTTP status code 400 Bad Request
+            }
 
             $total_order = ShoppingCart::select('shopping_carts.quantity', 'products.*', 'map_product_prices.price')
                 ->join('products', 'shopping_carts.product_id', '=', 'products.id')

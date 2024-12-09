@@ -16,7 +16,6 @@ use App\Http\Controllers\Api\AdminController\AdminPaymentController;
 use App\Http\Controllers\Api\AdminController\AdminOrderManagmentController;
 use App\Http\Controllers\Api\AdminController\AdminDriverTaskController;
 use App\Http\Controllers\Api\AdminController\AdminSchemeCategoryController;
-use App\Http\Controllers\Api\AdminController\AdminSchemeController;
 
 Route::prefix('adminDashboard')->group(function(){
     Route::post('dashboard',[AdminDashboardController::class,'dashboard'])->name('adminDashboard.dashboard');
@@ -117,13 +116,4 @@ Route::prefix('adminSchemeCategory')->group(function(){
     Route::post('addSchemeCategory',[AdminSchemeCategoryController::class,'addSchemeCategory'])->name('adminSchemeCategory.addSchemeCategory');
     Route::post('updateSchemeCategory',[AdminSchemeCategoryController::class,'updateSchemeCategory'])->name('adminSchemeCategory.updateSchemeCategory');
     Route::post('deleteSchemeCategory',[AdminSchemeCategoryController::class,'deleteSchemeCategory'])->name('adminSchemeCategory.deleteSchemeCategory');
-});
-
-Route::prefix('adminScheme')->group(function(){
-    Route::post('schemeCategoryListing',[AdminSchemeController::class,'schemeCategoryListing'])->name('adminScheme.schemeCategoryListing');
-    Route::post('distributorListing',[AdminSchemeController::class,'distributorListing'])->name('adminScheme.distributorListing');
-    Route::post('schemeListing',[AdminSchemeController::class,'schemeListing'])->name('adminScheme.schemeListing');
-    Route::post('schemeApply',[AdminSchemeController::class,'schemeApply'])->name('schemeApply.addScheme');
-    Route::post('updateScheme',[AdminSchemeController::class,'updateScheme'])->name('adminScheme.updateScheme');
-    Route::post('deleteScheme',[AdminSchemeController::class,'deleteScheme'])->name('adminScheme.deleteScheme');
 });

@@ -25,6 +25,8 @@ return new class extends Migration
             $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade')->onUpdate('cascade')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('otp',6)->nullable();
+            $table->timestamp('otp_expires_at')->nullable();
             $table->rememberToken();
             $table->boolean('status')->default('1')->comment('Active:1,Inactive:0');
             $table->timestamps();

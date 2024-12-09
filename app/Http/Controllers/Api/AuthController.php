@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use App\Models\User;
 use App\Models\ConnectionRequest;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
+use Twilio\Rest\Client;
 
 
 
@@ -59,7 +62,7 @@ class AuthController extends Controller
         }
 
         $credentials = $request->only('email', 'password','role_id');
-        
+
         // First check if user exists
         $user = User::where('email', $credentials['email'])->first();
         if (!$user) {
@@ -157,10 +160,10 @@ class AuthController extends Controller
     {
         $user_id = $this->validate_user($request->connection_id, $request->auth_code);
         if($user_id)
-        {       
+        {
             // dd($request->image_path);
             $user = User::find($user_id);
-            
+
             // Validation rules with unique check excluding current user
             $validator = Validator::make($request->all(), [
                 'name' => $request->has('name') ? 'required|string|max:255' : '',
@@ -171,8 +174,10 @@ class AuthController extends Controller
                 'pan_number' => $request->has('pan_number') ? 'nullable|string|regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/' : '',
                 'image_path' => $request->has('image_path') ? 'nullable|image|mimes:jpeg,png,jpg|max:5120' : '',
                 'address' => $request->has('address') ? 'required|string' : '',
+                'password' => $request->has('password') ? 'nullable|min:8|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/' : '',
             ], [
-                'pan_number.regex' => 'PAN number must be in this format: ABCDE1234F (first 5 capital letters, then 4 numbers, ending with 1 capital letter)'
+                'pan_number.regex' => 'PAN number must be in this format: ABCDE1234F (first 5 capital letters, then 4 numbers, ending with 1 capital letter)',
+                'password.regex' => 'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character (@$!%*?&) and minimum 8 characters'
             ]);
 
             if($validator->fails()){
@@ -187,10 +192,10 @@ class AuthController extends Controller
                 if ($user->image_path && file_exists(public_path($user->image_path))) {
                     unlink(public_path($user->image_path));
                 }
-                
+
                 $image = $request->file('image_path');
                 $currentDateTime = now()->format('Y-m-d_H-i-s');
-                
+
                 // Determine upload directory based on role_id
                 $uploadDir = match ($user->role_id) {
                     1 => 'uploads/admin',
@@ -231,8 +236,12 @@ class AuthController extends Controller
             {
                 $user->address = $request->address;
             }
+            if($request->has('password'))
+            {
+                $user->password = Hash::make($request->password);
+            }
             $user->save();
-            
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Profile updated successfully',
@@ -247,6 +256,226 @@ class AuthController extends Controller
             ], 401);
         }
     }
+
+
+    public function forgotPassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email|exists:users,email',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validator->errors(),
+            ], 400);
+        }
+
+        // Check if user exists and is an admin
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user || $user->role_id !== 1) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You are not an admin.',
+            ], 403); // Forbidden, as they are not an admin
+        }
+
+        // Generate OTP
+        $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
+        // Store OTP in users table with expiry time (5 minutes from now)
+        $user->otp = $otp;
+        $user->otp_expires_at = now()->addMinutes(5);
+        $user->save();
+
+        // Send OTP via email
+        try {
+            Mail::send('emails.forgot-password', ['otp' => $otp], function($message) use ($request) {
+                $message->to($request->email)
+                        ->subject('Password Reset OTP');
+            });
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'OTP has been sent to your Registered email address',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to send OTP. Please try again.',
+            ], 500);
+        }
+    }
+
+
+    // public function forgotPassword(Request $request)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'email' => 'required|email|exists:users,email',
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'message' => $validator->errors(),
+    //         ], 400);
+    //     }
+
+    //     // Check if user exists and is an admin
+    //     $user = User::where('email', $request->email)->first();
+
+    //     if (!$user || $user->role_id !== 1) {
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'message' => 'You are not an admin.',
+    //         ], 403); // Forbidden, as they are not an admin
+    //     }
+
+    //     // Generate OTP
+    //     $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
+    //     // Store OTP in users table with expiry time (5 minutes from now)
+    //     $user->otp = $otp;
+    //     $user->otp_expires_at = now()->addMinutes(5);
+    //     $user->save();
+
+    //     // Send OTP via email
+    //     try {
+    //         // Sending OTP via email
+    //         Mail::send('emails.forgot-password', ['otp' => $otp], function($message) use ($request) {
+    //             $message->to($request->email)
+    //                     ->subject('Password Reset OTP');
+    //         });
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'message' => 'Failed to send OTP to email. Please try again.',
+    //         ], 500);
+    //     }
+
+    //     // Send OTP via SMS using Twilio
+    //     try {
+    //         // Ensure the phone number is in the correct format (e.g., +17756287797)
+    //         $twilio = new Client(env('TWILIO_SID'), env('TWILIO_AUTH_TOKEN'));
+
+    //         $twilio->messages->create(
+    //         '+91' . $user->mobile, // Ensure mobile is in correct format
+    //             [
+    //                 'from' => '+17756287797', // Twilio phone number in E.164 format
+    //                 'body' => 'Your OTP for password reset is: ' . $otp
+    //             ]
+    //         );
+
+    //         return response()->json([
+    //             'status' => 'success',
+    //             'message' => 'OTP has been sent to your registered email and mobile number.',
+    //         ], 200);
+    //     } catch (\Exception $e) {
+    //         // Log the exception message to get more details
+    //         Log::error('Twilio SMS Error: ' . $e->getMessage());
+
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'message' => 'Failed to send OTP to mobile. Please try again.',
+    //         ], 500);
+    //     }
+    // }
+
+
+    public function verifyOTP(Request $request)
+    {
+        // dd($request->password,$request->confirm);
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email|exists:users,email',
+            'otp' => 'required|string|size:6',
+            'password' => [
+                'required',
+                'min:8',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/',
+                'confirmed', // This will ensure password and confirm password match
+            ],
+        ], [
+            'password.regex' => 'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character (@$!%*?&) and must be at least 8 characters long.',
+            'password.confirmed' => 'The password and confirm password do not match.',
+            'password.min' => 'Password must be at least 8 characters long.',
+        ]);
+
+        // If validation fails, return the error messages
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validator->errors(),
+            ], 400);
+        }
+
+        // Validate OTP and reset the password if valid
+        $user = User::where('email', $request->email)
+                    ->where('otp', $request->otp)
+                    ->where('otp_expires_at', '>', now())
+                    ->first();
+
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Invalid or expired OTP.',
+            ], 400);
+        }
+
+        // Reset the user's password
+        $user->password = Hash::make($request->password);
+        $user->otp = null;
+        $user->otp_expires_at = null;
+        $user->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Password reset successful.',
+        ], 200);
+    }
+
+
+
+    // public function resendOTP(Request $request)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'email' => 'required|email|exists:users,email',
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'message' => $validator->errors(),
+    //         ], 400);
+    //     }
+
+    //     // Generate new OTP
+    //     $otp = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
+    //     // Update OTP in database
+    //     $user = User::where('email', $request->email)->first();
+    //     $user->otp = $otp;
+    //     $user->otp_expires_at = now()->addMinutes(5);
+    //     $user->save();
+
+    //     // Resend OTP via email
+    //     try {
+    //         Mail::send('emails.forgot-password', ['otp' => $otp], function($message) use ($request) {
+    //             $message->to($request->email)
+    //                     ->subject('Password Reset OTP');
+    //         });
+
+    //         return response()->json([
+    //             'status' => 'success',
+    //             'message' => 'New OTP has been sent to your email address',
+    //         ], 200);
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'message' => 'Failed to send OTP. Please try again.',
+    //         ], 500);
+    //     }
+    // }
 
 
 

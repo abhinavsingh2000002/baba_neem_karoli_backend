@@ -8,13 +8,15 @@ use App\Http\Controllers\Api\AdminController\AdminLaserController;
 use App\Http\Controllers\Api\AdminController\AdminCredController;
 use App\Http\Controllers\Api\AdminController\AdminDashboardController;
 use App\Http\Controllers\Api\AdminController\AdminReportController;
-use App\Http\Controllers\Api\AdminController\AdminDistributorController;    
+use App\Http\Controllers\Api\AdminController\AdminDistributorController;
 use App\Http\Controllers\Api\AdminController\AdminDriverController;
 use App\Http\Controllers\AdminController\AdminProductController;
 use App\Http\Controllers\Api\AdminController\AdminMapProductController;
 use App\Http\Controllers\Api\AdminController\AdminPaymentController;
 use App\Http\Controllers\Api\AdminController\AdminOrderManagmentController;
 use App\Http\Controllers\Api\AdminController\AdminDriverTaskController;
+use App\Http\Controllers\Api\AdminController\AdminSchemeCategoryController;
+use App\Http\Controllers\Api\AdminController\AdminSchemeController;
 
 Route::prefix('adminDashboard')->group(function(){
     Route::post('dashboard',[AdminDashboardController::class,'dashboard'])->name('adminDashboard.dashboard');
@@ -108,4 +110,20 @@ Route::prefix('adminDriverTask')->group(function(){
     Route::post('fetchOrderForAssignTask',[AdminDriverTaskController::class,'fetchOrderForAssignTask'])->name('adminDriverTask.fetchOrderForAssignTask');
     Route::post('assignTask',[AdminDriverTaskController::class,'assignTask'])->name('adminDriverTask.assignTask');
     Route::post('updateAssignTask',[AdminDriverTaskController::class,'updateAssignTask'])->name('adminDriverTask.updateAssignTask');
+});
+
+Route::prefix('adminSchemeCategory')->group(function(){
+    Route::post('schemeCategoryListing',[AdminSchemeCategoryController::class,'schemeCategoryListing'])->name('adminSchemeCategory.schemeCategoryListing');
+    Route::post('addSchemeCategory',[AdminSchemeCategoryController::class,'addSchemeCategory'])->name('adminSchemeCategory.addSchemeCategory');
+    Route::post('updateSchemeCategory',[AdminSchemeCategoryController::class,'updateSchemeCategory'])->name('adminSchemeCategory.updateSchemeCategory');
+    Route::post('deleteSchemeCategory',[AdminSchemeCategoryController::class,'deleteSchemeCategory'])->name('adminSchemeCategory.deleteSchemeCategory');
+});
+
+Route::prefix('adminScheme')->group(function(){
+    Route::post('schemeCategoryListing',[AdminSchemeController::class,'schemeCategoryListing'])->name('adminScheme.schemeCategoryListing');
+    Route::post('distributorListing',[AdminSchemeController::class,'distributorListing'])->name('adminScheme.distributorListing');
+    Route::post('schemeListing',[AdminSchemeController::class,'schemeListing'])->name('adminScheme.schemeListing');
+    Route::post('schemeApply',[AdminSchemeController::class,'schemeApply'])->name('schemeApply.addScheme');
+    Route::post('updateScheme',[AdminSchemeController::class,'updateScheme'])->name('adminScheme.updateScheme');
+    Route::post('deleteScheme',[AdminSchemeController::class,'deleteScheme'])->name('adminScheme.deleteScheme');
 });

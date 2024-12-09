@@ -14,6 +14,8 @@ Route::prefix('auth')->group(function(){
     Route::post('login',[AuthController::class,'login']);
     Route::post('logout',[AuthController::class,'logout']);
     Route::post('editProfile',[AuthController::class,'editProfile']);
+    Route::post('forgotPassword',[AuthController::class,'forgotPassword']);
+    Route::post('verifyOTP',[AuthController::class,'verifyOTP']);
 });
 
 Route::prefix('user')->group(function(){

@@ -21,9 +21,26 @@ class AdminDistributorController extends Controller
                 ->leftJoin('payments', 'users.id', '=', 'payments.user_id')
                 ->select(
                     'users.*',
+                    \DB::raw('DATE_FORMAT(users.created_at, "%d-%b-%Y %l:%i%p") as format_created_at'),
+                    \DB::raw('DATE_FORMAT(users.updated_at, "%d-%b-%Y %l:%i%p") as format_updated_at'),
                     \DB::raw('COALESCE((SELECT SUM(total_amount) FROM orders WHERE orders.user_id = users.id AND orders.order_status IN (2, 3)), 0.00) as total_order_amount'),
                     \DB::raw('COALESCE((SELECT SUM(amount_paid) FROM payments WHERE payments.user_id = users.id), 0.00) as total_paid_amount'),
-                    \DB::raw('COALESCE((SELECT SUM(total_amount) FROM orders WHERE orders.user_id = users.id AND orders.order_status IN (2, 3)), 0.00) - COALESCE((SELECT SUM(amount_paid) FROM payments WHERE payments.user_id = users.id), 0.00) as outstanding_balance')
+                    \DB::raw('CASE 
+                        WHEN COALESCE((SELECT SUM(amount_paid) FROM payments WHERE payments.user_id = users.id), 0.00) > 
+                             COALESCE((SELECT SUM(total_amount) FROM orders WHERE orders.user_id = users.id AND orders.order_status IN (2, 3)), 0.00)
+                        THEN COALESCE((SELECT SUM(amount_paid) FROM payments WHERE payments.user_id = users.id), 0.00) - 
+                             COALESCE((SELECT SUM(total_amount) FROM orders WHERE orders.user_id = users.id AND orders.order_status IN (2, 3)), 0.00)
+                        ELSE 0.00
+                    END as advance_amount'),
+                    \DB::raw('CASE 
+                        WHEN COALESCE((SELECT SUM(total_amount) FROM orders WHERE orders.user_id = users.id AND orders.order_status IN (2, 3)), 0.00) > 
+                             COALESCE((SELECT SUM(amount_paid) FROM payments WHERE payments.user_id = users.id), 0.00)
+                        THEN COALESCE((SELECT SUM(total_amount) FROM orders WHERE orders.user_id = users.id AND orders.order_status IN (2, 3)), 0.00) - 
+                             COALESCE((SELECT SUM(amount_paid) FROM payments WHERE payments.user_id = users.id), 0.00)
+                        ELSE 0.00
+                    END as outstanding_balance'),
+                    \DB::raw('(SELECT DATE_FORMAT(order_date, "%d-%b-%Y") FROM orders WHERE orders.user_id = users.id ORDER BY order_date DESC LIMIT 1) as last_order_date'),
+                    \DB::raw('(SELECT COUNT(*) FROM orders WHERE orders.user_id = users.id) as total_orders')
                 )
                 ->groupBy(
                     'users.id', 'users.name', 'users.email', 'users.mobile', 'users.dob', 

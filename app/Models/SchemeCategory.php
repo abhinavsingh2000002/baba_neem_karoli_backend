@@ -8,4 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class SchemeCategory extends Model
 {
     use HasFactory;
+    protected $table="scheme_categorys";
 }

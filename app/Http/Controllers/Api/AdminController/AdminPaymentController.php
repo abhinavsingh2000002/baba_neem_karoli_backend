@@ -8,6 +8,7 @@ use App\Api\Traits\ValidationTrait;
 use App\Models\User;
 use App\Models\Payment;
 use App\Models\Order;
+use App\Models\SchemeCategory;
 
 class AdminPaymentController extends Controller
 {
@@ -23,27 +24,30 @@ class AdminPaymentController extends Controller
                 'payments.user_id',
                 'users.name as distributorName',
                 'payments.created_at as payment_date',
+                'payments.payment_type',
+                'scheme_categorys.title as SchemeName',
                 'payments.amount_paid',
                 \DB::raw('COALESCE((SELECT SUM(total_amount) FROM orders WHERE orders.user_id = payments.user_id AND orders.created_at <= payments.created_at AND orders.order_status IN (2, 3)), 0) as orderTotalAmount'),
                 \DB::raw('COALESCE((SELECT SUM(amount_paid) FROM payments p2 WHERE p2.user_id = payments.user_id AND p2.created_at <= payments.created_at), 0) as totalPaidTillDate'),
-                \DB::raw('CASE 
-                    WHEN (COALESCE((SELECT SUM(total_amount) FROM orders WHERE orders.user_id = payments.user_id AND orders.created_at <= payments.created_at AND orders.order_status IN (2, 3)), 0) - 
-                         COALESCE((SELECT SUM(amount_paid) FROM payments p2 WHERE p2.user_id = payments.user_id AND p2.created_at <= payments.created_at), 0)) < 0 
-                    THEN 0 
-                    ELSE (COALESCE((SELECT SUM(total_amount) FROM orders WHERE orders.user_id = payments.user_id AND orders.created_at <= payments.created_at AND orders.order_status IN (2, 3)), 0) - 
+                \DB::raw('CASE
+                    WHEN (COALESCE((SELECT SUM(total_amount) FROM orders WHERE orders.user_id = payments.user_id AND orders.created_at <= payments.created_at AND orders.order_status IN (2, 3)), 0) -
+                         COALESCE((SELECT SUM(amount_paid) FROM payments p2 WHERE p2.user_id = payments.user_id AND p2.created_at <= payments.created_at), 0)) < 0
+                    THEN 0
+                    ELSE (COALESCE((SELECT SUM(total_amount) FROM orders WHERE orders.user_id = payments.user_id AND orders.created_at <= payments.created_at AND orders.order_status IN (2, 3)), 0) -
                          COALESCE((SELECT SUM(amount_paid) FROM payments p2 WHERE p2.user_id = payments.user_id AND p2.created_at <= payments.created_at), 0))
                     END as remainingAmount'),
-                \DB::raw('CASE 
-                    WHEN (COALESCE((SELECT SUM(total_amount) FROM orders WHERE orders.user_id = payments.user_id AND orders.created_at <= payments.created_at AND orders.order_status IN (2, 3)), 0) - 
-                         COALESCE((SELECT SUM(amount_paid) FROM payments p2 WHERE p2.user_id = payments.user_id AND p2.created_at <= payments.created_at), 0)) < 0 
-                    THEN ABS(COALESCE((SELECT SUM(total_amount) FROM orders WHERE orders.user_id = payments.user_id AND orders.created_at <= payments.created_at AND orders.order_status IN (2, 3)), 0) - 
+                \DB::raw('CASE
+                    WHEN (COALESCE((SELECT SUM(total_amount) FROM orders WHERE orders.user_id = payments.user_id AND orders.created_at <= payments.created_at AND orders.order_status IN (2, 3)), 0) -
+                         COALESCE((SELECT SUM(amount_paid) FROM payments p2 WHERE p2.user_id = payments.user_id AND p2.created_at <= payments.created_at), 0)) < 0
+                    THEN ABS(COALESCE((SELECT SUM(total_amount) FROM orders WHERE orders.user_id = payments.user_id AND orders.created_at <= payments.created_at AND orders.order_status IN (2, 3)), 0) -
                          COALESCE((SELECT SUM(amount_paid) FROM payments p2 WHERE p2.user_id = payments.user_id AND p2.created_at <= payments.created_at), 0))
-                    ELSE 0 
+                    ELSE 0
                     END as advanceAmount')
             )
             ->join('users', 'users.id', '=', 'payments.user_id')
+            ->leftjoin('scheme_categorys','payments.scheme_category_id','=','scheme_categorys.id')
             ->orderBy('payments.created_at', 'DESC');
-                
+
             // Filter by distributor ID if provided
             if ($request->has('distributor_id')) {
                 $query->where('payments.user_id', $request->distributor_id);
@@ -67,9 +71,9 @@ class AdminPaymentController extends Controller
                     'total_paid_amount' => Payment::where('user_id', $request->distributor_id)
                         ->sum('amount_paid'),
                 ];
-                
+
                 $difference = $summary['total_order_amount'] - $summary['total_paid_amount'];
-                
+
                 if ($difference < 0) {
                     $summary['advance_amount'] = number_format(abs($difference), 2, '.', '');
                     $summary['total_due_amount'] = "0.00";
@@ -82,24 +86,24 @@ class AdminPaymentController extends Controller
                 $distributors = User::where('role_id', 2)->where('status', 1)->get();
                 $totalAdvance = 0;
                 $totalDue = 0;
-                
+
                 foreach ($distributors as $distributor) {
                     $orderAmount = Order::whereIn('order_status', [2, 3])
                         ->where('user_id', $distributor->id)
                         ->sum('total_amount');
-                        
+
                     $paidAmount = Payment::where('user_id', $distributor->id)
                         ->sum('amount_paid');
-                        
+
                     $difference = $orderAmount - $paidAmount;
-                    
+
                     if ($difference < 0) {
                         $totalAdvance += abs($difference);
                     } else {
                         $totalDue += $difference;
                     }
                 }
-                
+
                 $summary = [
                     'total_order_amount' => Order::whereIn('order_status', [2, 3])->sum('total_amount'),
                     'total_paid_amount' => Payment::sum('amount_paid'),
@@ -124,7 +128,7 @@ class AdminPaymentController extends Controller
     }
 
     public function distributorListing(Request $request)
-    {  
+    {
         $user = $this->validate_user($request->connection_id, $request->auth_code);
         if($user)
         {
@@ -143,6 +147,27 @@ class AdminPaymentController extends Controller
         }
     }
 
+
+    public function schemeCategoryListing(Request $request)
+    {
+        $user = $this->validate_user($request->connection_id, $request->auth_code);
+        if($user)
+        {
+        $schemeCategory=SchemeCategory::where('status','=',1)->get();
+        return response()->json([
+            'status' => 'success',
+            'schemeCategory' => $schemeCategory,
+            'message' => 'schemeCategory retrieved successfully',
+        ], 200); // HTTP 200 OK
+        }
+        else {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User not authenticated',
+            ], 401); // HTTP 401 Unauthorized
+        }
+    }
+
     public function addPayment(Request $request)
     {
         $user = $this->validate_user($request->connection_id, $request->auth_code);
@@ -151,18 +176,20 @@ class AdminPaymentController extends Controller
             $totalAmount = Order::select('orders.total_amount as totalAmount')
             ->where('user_id', $request->distributor_id)->whereIn('order_status', [2, 3])->sum('total_amount');
             $paidAmount = Payment::where('user_id', $request->distributor_id)->sum('amount_paid');
-            
+
             $remainingAmount = $totalAmount - $paidAmount;
-            
+
             $payment = new Payment();
             $payment->user_id = $request->distributor_id;
             $payment->amount_paid = $request->paid_amount;
+            $payment->scheme_category_id=$request->scheme_category_id;
+            $payment->payment_type = $request->scheme_category_id ? 0 : 1;
             $payment->save();
-            
-            $message = $remainingAmount <= 0 ? 
-                'Advance payment added successfully' : 
+
+            $message = $remainingAmount <= 0 ?
+                'Advance payment added successfully' :
                 'Payment added successfully';
-            
+
             return response()->json([
                 'status' => 'success',
                 'message' => $message,
@@ -191,6 +218,8 @@ class AdminPaymentController extends Controller
             }
             $payment->user_id = $request->distributor_id;
             $payment->amount_paid = $request->paid_amount;
+            $payment->scheme_category_id=$request->scheme_category_id;
+            $payment->payment_type = $request->scheme_category_id ? 0 : 1;
             $payment->save();
             return response()->json([
                 'status' => 'success',

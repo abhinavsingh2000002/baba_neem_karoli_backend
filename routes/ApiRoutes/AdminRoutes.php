@@ -10,7 +10,7 @@ use App\Http\Controllers\Api\AdminController\AdminDashboardController;
 use App\Http\Controllers\Api\AdminController\AdminReportController;
 use App\Http\Controllers\Api\AdminController\AdminDistributorController;
 use App\Http\Controllers\Api\AdminController\AdminDriverController;
-use App\Http\Controllers\AdminController\AdminProductController;
+use App\Http\Controllers\Api\AdminController\AdminProductController;
 use App\Http\Controllers\Api\AdminController\AdminMapProductController;
 use App\Http\Controllers\Api\AdminController\AdminPaymentController;
 use App\Http\Controllers\Api\AdminController\AdminOrderManagmentController;

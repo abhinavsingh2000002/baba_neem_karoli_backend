@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\AdminController;
+namespace App\Http\Controllers\Api\AdminController;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -15,7 +15,7 @@ class AdminProductController extends Controller
         $user = $this->validate_user($request->connection_id, $request->auth_code);
         if($user){
             $query = Product::query();
-            
+
             // Add search filters
             if($request->has('search')) {
                 $search = $request->search;
@@ -26,9 +26,9 @@ class AdminProductController extends Controller
             }
 
             $products = $query->orderBy('id','desc')->get();
-            
+
             return response()->json([
-                'status' => 'success', 
+                'status' => 'success',
                 'products' => $products,
                 'message' => 'Products retrieved successfully',
             ], 200);
@@ -57,7 +57,7 @@ class AdminProductController extends Controller
                 return response()->json([
                     'status' => 'error',
                     'message' => $validator->errors(),
-                ], 400);    
+                ], 400);
             }
 
             $product = new Product();
@@ -72,9 +72,10 @@ class AdminProductController extends Controller
             $product->product_description = $request->product_description;
             if($request->hasFile('product_image')){
                 $image = $request->file('product_image');
-                $filename = time() . '_' . $image->getClientOriginalName();
-                $image->storeAs('products', $filename, 'public');
-                $product->product_image = $filename;
+                $currentDateTime = now()->format('Y-m-d_H-i-s');
+                $filename = $request->product_name . '_' . $request->product_quantity . '_' . $currentDateTime . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('uploads/products'), $filename);
+                $product->product_image = 'uploads/products/' . $filename;
             }
             $product->save();
 
@@ -103,7 +104,7 @@ class AdminProductController extends Controller
                 'item_per_cred' => 'sometimes|numeric',
                 'product_description' => 'nullable|string',
                 'product_image' => 'nullable|image|mimes:jpeg,png,JPEG,PNG|max:10240',
-            ]); 
+            ]);
 
             if($validator->fails()){
                 return response()->json([
@@ -113,7 +114,7 @@ class AdminProductController extends Controller
             }
 
             $product = Product::find($request->product_id);
-            
+
             if ($request->has('product_name')) {
                 $product->product_name = $request->product_name;
             }
@@ -129,14 +130,20 @@ class AdminProductController extends Controller
             if ($request->has('product_description')) {
                 $product->product_description = $request->product_description;
             }
-            
+
             if ($request->hasFile('product_image')) {
+                // Delete the old image if it exists
+                if ($product->product_image && file_exists(public_path($product->product_image))) {
+                    unlink(public_path($product->product_image));
+                }
+
                 $image = $request->file('product_image');
-                $filename = time() . '_' . $image->getClientOriginalName();
-                $image->storeAs('products', $filename, 'public');
-                $product->product_image = $filename;
+                $currentDateTime = now()->format('Y-m-d_H-i-s');
+                $filename = $request->product_name . '_' . $request->product_quantity . '_' . $currentDateTime . '.' . $image->getClientOriginalExtension();
+                $image->move(public_path('uploads/products'), $filename);
+                $product->product_image = 'uploads/products/' . $filename;
             }
-            
+
             $product->save();
 
             return response()->json([

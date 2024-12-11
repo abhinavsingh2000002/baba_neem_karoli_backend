@@ -17,16 +17,20 @@ class AdminReportController extends Controller
         $user = $this->validate_user($request->connection_id, $request->auth_code);
         if($user)
         {
-            $all_product=Product::select('products.product_no','products.product_name','products.product_quantity as productWeight')->where('status',1)->get();
+            $all_product = Product::select('products.product_no', 'products.product_name', 'products.product_quantity as productWeight')->get();
             $order = Order::with(['orderDetails', 'user'])
-            ->where('order_date', '=', $request->date)
-            ->get();
+                ->join('users', 'orders.user_id', '=', 'users.id')
+                ->where('order_date', '=', $request->date)
+                ->orderBy(\DB::raw('ISNULL(users.display_order), users.display_order'), 'asc')
+                ->select('orders.*')
+                ->get();
+            
             return response()->json([
                 'status' => 'success',
                 'products' => $all_product,
-                'orders'=>$order,
+                'orders' => $order,
                 'message' => 'report retrieved successfully',
-            ], 200); // HTTP 200 OK
+            ], 200);
         }
         else{
             return response()->json([
@@ -35,4 +39,29 @@ class AdminReportController extends Controller
             ], 401); // HTTP 401 Unauthorized
         }
     }
+
+
+    // public function reportListing(Request $request)
+    // {
+    //     $user = $this->validate_user($request->connection_id, $request->auth_code);
+    //     if($user)
+    //     {
+    //         $all_product=Product::select('products.product_no','products.product_name','products.product_quantity as productWeight')->where('status',1)->get();
+    //         $order = Order::with(['orderDetails', 'user'])
+    //         ->where('order_date', '=', $request->date)
+    //         ->get();
+    //         return response()->json([
+    //             'status' => 'success',
+    //             'products' => $all_product,
+    //             'orders'=>$order,
+    //             'message' => 'report retrieved successfully',
+    //         ], 200); // HTTP 200 OK
+    //     }
+    //     else{
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'message' => 'User not authenticated',
+    //         ], 401); // HTTP 401 Unauthorized
+    //     }
+    // }
 }

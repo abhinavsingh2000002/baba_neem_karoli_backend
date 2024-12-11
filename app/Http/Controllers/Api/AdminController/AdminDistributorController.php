@@ -67,7 +67,7 @@ class AdminDistributorController extends Controller
                 $query->where('users.status', $request->status);
             }
 
-            $distributor = $query->orderBy('users.id','desc')->get();
+            $distributor = $query->orderBy(\DB::raw('ISNULL(users.display_order), users.display_order'), 'asc')->get();
             
             return response()->json([
                 'status' => 'success',
@@ -114,6 +114,7 @@ class AdminDistributorController extends Controller
                 'pan_number' => 'nullable|string|regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/|max:10',
                 'image_path' => 'required|image|mimes:jpeg,png,jpg|max:5120',
                 'address' => 'required|string',
+                'display_order' => 'nullable|integer|unique:users,display_order',
                 'password' => 'required|string|min:8|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/',
             ], [
                 'password.regex' => 'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character (@$!%*?&) and minimum 8 characters',
@@ -145,6 +146,7 @@ class AdminDistributorController extends Controller
             $distributor->address=$request->address;
             $distributor->role_id=2;
             $distributor->status=1;
+            $distributor->display_order=$request->display_order;
             $distributor->image_path = 'uploads/distributor/' . $imageName;
             $distributor->password=Hash::make($request->password);  
             $distributor->save();
@@ -184,6 +186,7 @@ class AdminDistributorController extends Controller
                 'pan_number' => 'nullable|string|regex:/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/|max:10',
                 'image_path' => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
                 'address' => 'sometimes|string',
+                'display_order' => 'nullable|integer|unique:users,display_order,'.$distributor->id, 
                 'password' => 'nullable|string|min:8|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/',
             ], [
                 'password.regex' => 'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character (@$!%*?&) and minimum 8 characters',
@@ -220,6 +223,7 @@ class AdminDistributorController extends Controller
             if($request->has('pan_number')) $distributor->pan_number = $request->pan_number;
             if($request->has('address')) $distributor->address = $request->address;
             if($request->has('password')) $distributor->password = Hash::make($request->password);
+            if($request->has('display_order')) $distributor->display_order = $request->display_order;
 
             $distributor->save();
             

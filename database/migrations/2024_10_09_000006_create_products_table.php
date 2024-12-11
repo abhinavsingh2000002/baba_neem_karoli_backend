@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('product_description');
             $table->string('product_quantity');
             $table->integer('item_per_cred');
+            $table->decimal('product_price', 10, 2)->comment('this price is appllicale for all distributors in case of that distribtuor dosent have any mapped price');
+            $table->unsignedBigInteger('display_order')->unique()->nullable();
             $table->boolean('status')->default('1')->comment('Active:1,Inactive:0');
             $table->timestamps();
         });

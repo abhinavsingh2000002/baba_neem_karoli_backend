@@ -25,7 +25,7 @@ class AdminProductController extends Controller
                 });
             }
 
-            $products = $query->orderBy('id','desc')->get();
+            $products = $query->orderBy(\DB::raw('ISNULL(products.display_order), products.display_order'), 'asc')->get();
 
             return response()->json([
                 'status' => 'success',
@@ -50,6 +50,8 @@ class AdminProductController extends Controller
                 'product_quantity' => 'required|string',
                 'item_per_cred' => 'required|numeric',
                 'product_description' => 'nullable|string',
+                'product_price' => 'required|numeric',
+                'display_order' => 'nullable|numeric|unique:products,display_order',
                 'product_image' => 'required|image|mimes:jpeg,png,JPEG,PNG|max:10240',
             ]);
 
@@ -70,6 +72,8 @@ class AdminProductController extends Controller
             $product->product_quantity = $request->product_quantity;
             $product->item_per_cred = $request->item_per_cred;
             $product->product_description = $request->product_description;
+            $product->product_price = $request->product_price;
+            $product->display_order = $request->display_order;
             if($request->hasFile('product_image')){
                 $image = $request->file('product_image');
                 $currentDateTime = now()->format('Y-m-d_H-i-s');
@@ -103,6 +107,8 @@ class AdminProductController extends Controller
                 'product_quantity' => 'sometimes|string',
                 'item_per_cred' => 'sometimes|numeric',
                 'product_description' => 'nullable|string',
+                'product_price' => 'sometimes|numeric',
+                'display_order' => 'nullable|numeric|unique:products,display_order,' . $request->product_id,
                 'product_image' => 'nullable|image|mimes:jpeg,png,JPEG,PNG|max:10240',
             ]);
 
@@ -129,6 +135,12 @@ class AdminProductController extends Controller
             }
             if ($request->has('product_description')) {
                 $product->product_description = $request->product_description;
+            }
+            if ($request->has('product_price')) {
+                $product->product_price = $request->product_price;
+            }
+            if ($request->has('display_order')) {
+                $product->display_order = $request->display_order;
             }
 
             if ($request->hasFile('product_image')) {

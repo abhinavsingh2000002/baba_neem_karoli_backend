@@ -17,14 +17,15 @@ class AdminReportController extends Controller
         $user = $this->validate_user($request->connection_id, $request->auth_code);
         if($user)
         {
-            $all_product = Product::select('products.product_no', 'products.product_name', 'products.product_quantity as productWeight')->get();
+            $all_product = Product::select('products.product_no', 'products.product_name', 'products.product_quantity as productWeight')
+            ->orderBy(\DB::raw('ISNULL(products.display_order), products.display_order'), 'asc')->get();
             $order = Order::with(['orderDetails', 'user'])
                 ->join('users', 'orders.user_id', '=', 'users.id')
                 ->where('order_date', '=', $request->date)
                 ->orderBy(\DB::raw('ISNULL(users.display_order), users.display_order'), 'asc')
                 ->select('orders.*')
                 ->get();
-            
+
             return response()->json([
                 'status' => 'success',
                 'products' => $all_product,

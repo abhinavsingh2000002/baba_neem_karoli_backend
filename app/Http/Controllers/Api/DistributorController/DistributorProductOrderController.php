@@ -280,7 +280,7 @@ class DistributorProductOrderController extends Controller
             $endTime = Carbon::createFromTimeString('19:00');
 
             // Check if user already placed an order today
-            $existingOrder = Order::where('user_id', $request->distributor_id)
+            $existingOrder = Order::where('user_id', $user)
             ->where('order_date', $currentDate)
             ->first();
 

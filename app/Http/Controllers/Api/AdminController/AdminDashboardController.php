@@ -21,7 +21,7 @@ class AdminDashboardController extends Controller
         {
             $distributor=User::where('role_id','=',2)->where('status','=',1)->count();
             $driver=User::where('role_id','=',3)->where('status','=',1)->count();
-            $order = Order::whereDate('created_at', today())->count();
+            $order = Order::whereDate('order_date', today())->count();
             $recentOrders = Order::select('orders.order_no','users.name as distributorName','orders.order_status')
             ->join('users','orders.user_id','=','users.id')
             ->latest('orders.order_date')->limit(5)->orderBy('orders.id','desc')->get();

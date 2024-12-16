@@ -12,6 +12,8 @@ use Carbon\Carbon;
 use App\Models\MapProductPrice;
 use App\Models\ShoppingCart;
 use App\Models\Bill;
+use App\Models\Product;
+use DB;
 
 
 
@@ -137,8 +139,21 @@ class AdminOrderManagmentController extends Controller
         if($user)
         {
             $order=Order::find($request->order_id);
-            $products = MapProductPrice::select('products.id as productId','products.product_name','products.product_no','products.product_quantity','products.item_per_cred','map_product_prices.price')->join('products','map_product_prices.product_id','=','products.id')
-            ->where('user_id',$order->user_id)->where('products.status','=',1)->get();
+            // $products = MapProductPrice::select('products.id as productId','products.product_name','products.product_no','products.product_quantity','products.item_per_cred','map_product_prices.price')->join('products','map_product_prices.product_id','=','products.id')
+            // ->where('user_id',$order->user_id)->where('products.status','=',1)->get();
+
+            $products = Product::select(
+                'products.id as productId','products.product_name','products.product_no','products.product_quantity','products.item_per_cred','map_product_prices.price',
+                DB::raw('COALESCE(map_product_prices.price, products.product_price) as price')
+            )
+            ->leftJoin('map_product_prices', function ($join) use ($user) {
+                $join->on('map_product_prices.product_id', '=', 'products.id')
+                     ->where('map_product_prices.user_id', '=', $user);
+            })
+            ->where('products.status', '=', 1)
+            ->get();
+
+
             return response()->json([
                 'status' => 'success',
                 'data' => $products,
@@ -172,10 +187,17 @@ class AdminOrderManagmentController extends Controller
                     // Update existing product
                     $orderDetail = OrderDetail::find($detailData->id);
                     // Fetch product price
-                    $product_price = MapProductPrice::select('price')
-                                    ->where('product_id', $orderDetail->product_id)
-                                    ->where('user_id', $orderDetail->user_id)
-                                    ->first();
+                    $product_price = Product::select(
+                        DB::raw('COALESCE(map_product_prices.price, products.product_price) as price')
+                    )
+                    ->leftJoin('map_product_prices', function ($join) use ($orderDetail) {
+                        $join->on('map_product_prices.product_id', '=', 'products.id')
+                             ->where('map_product_prices.user_id', '=', $orderDetail->user_id);
+                    })
+                    ->where('products.id', $orderDetail->product_id)
+                    ->first();
+    
+    
 
                     // Update product quantity and amount in OrderDetail
                     $orderDetail->product_quantity = $detailData->quantity;
@@ -194,12 +216,17 @@ class AdminOrderManagmentController extends Controller
                 foreach ($newProductIds as $index => $productId) {
                     $quantity = $newQuantities[$index]; // Get the corresponding quantity for this product
 
-                    $product = MapProductPrice::select('map_product_prices.price', 'products.*')
-                        ->join('products', 'map_product_prices.product_id', '=', 'products.id')
-                        ->where('map_product_prices.user_id', $order->user_id)
-                        ->where('products.status', '=', 1)
-                        ->where('products.id', '=', $productId)
-                        ->first(); // Get the single product
+                    $product = Product::select(
+                        'products.*',
+                        DB::raw('COALESCE(map_product_prices.price, products.product_price) as price')
+                    )
+                    ->leftJoin('map_product_prices', function ($join) use ($order) {
+                        $join->on('map_product_prices.product_id', '=', 'products.id')
+                             ->where('map_product_prices.user_id', '=', $order->user_id);
+                    })
+                    ->where('products.status', '=', 1)
+                    ->where('products.id', '=', $productId)
+                    ->first();        
                     if ($product) {
                         $orderDetail = new OrderDetail();
                         $orderDetail->order_id = $order->id;
@@ -260,12 +287,25 @@ class AdminOrderManagmentController extends Controller
     }
 
     public function productListingForDistributor(Request $request)
-    {
+    {   
         $user = $this->validate_user($request->connection_id, $request->auth_code);
         if($user)
         {
-            $products = MapProductPrice::select('products.*','map_product_prices.price')->join('products','map_product_prices.product_id','=','products.id')
-            ->where('user_id',$request->distributor_id)->where('products.status','=',1)->get();
+            // $products = MapProductPrice::select('products.*','map_product_prices.price')->join('products','map_product_prices.product_id','=','products.id')
+            // ->where('user_id',$request->distributor_id)->where('products.status','=',1)->get();
+
+            $products = Product::select(
+                'products.*',
+                DB::raw('COALESCE(map_product_prices.price, products.product_price) as price')
+            )
+            ->leftJoin('map_product_prices', function ($join) use ($request) {
+                $join->on('map_product_prices.product_id', '=', 'products.id')
+                     ->where('map_product_prices.user_id', '=', $request->distributor_id);
+            })
+            ->where('products.status', '=', 1)
+            ->get();
+
+
             return response()->json([
                 'status' => 'success',
                 'products' => $products,
@@ -288,7 +328,8 @@ class AdminOrderManagmentController extends Controller
             $cart = ShoppingCart::where('user_id',$request->distributor_id)->where('product_id',$request->product_id)->first();
             if($cart)
             {
-                $cart->quantity += $request->quantity;
+                $cart->quantity = $request->quantity;
+                // $cart->quantity += $request->quantity;
                 $cart->save();
             }
             else {
@@ -317,12 +358,29 @@ class AdminOrderManagmentController extends Controller
         $user = $this->validate_user($request->connection_id, $request->auth_code);
         if($user)
         {
-            $cart_data=ShoppingCart::select('products.*','map_product_prices.price','shopping_carts.quantity','shopping_carts.id as shopping_cart_id')
-            ->join('products','shopping_carts.product_id','=','products.id')
-            ->join('map_product_prices','products.id','=','map_product_prices.product_id')
-            ->where('map_product_prices.user_id','=',$request->distributor_id)->where('shopping_carts.user_id','=',$request->distributor_id)
-            ->where('map_product_prices.status',1)->where('products.status',1)
+            // $cart_data=ShoppingCart::select('products.*','map_product_prices.price','shopping_carts.quantity','shopping_carts.id as shopping_cart_id')
+            // ->join('products','shopping_carts.product_id','=','products.id')
+            // ->join('map_product_prices','products.id','=','map_product_prices.product_id')
+            // ->where('map_product_prices.user_id','=',$request->distributor_id)->where('shopping_carts.user_id','=',$request->distributor_id)
+            // ->where('map_product_prices.status',1)->where('products.status',1)
+            // ->get();
+
+            $cart_data = ShoppingCart::select(
+                'products.*',
+                'shopping_carts.quantity',
+                'shopping_carts.id as shopping_cart_id',
+                DB::raw('COALESCE(map_product_prices.price, products.product_price) as price')
+            )
+            ->join('products', 'shopping_carts.product_id', '=', 'products.id')
+            ->leftJoin('map_product_prices', function ($join) use ($request) {
+                $join->on('map_product_prices.product_id', '=', 'products.id')
+                     ->where('map_product_prices.user_id', '=', $request->distributor_id);
+            })
+            ->where('products.status', '=', 1)
+            ->where('shopping_carts.user_id', '=', $request->distributor_id)
             ->get();
+
+
             return response()->json([
                 'status' => 'success',
                 'cartProducts' => $cart_data,
@@ -421,14 +479,30 @@ class AdminOrderManagmentController extends Controller
             //     ], 400); // HTTP status code 400 Bad Request
             // }
 
-            $total_order = ShoppingCart::select('shopping_carts.quantity', 'products.*', 'map_product_prices.price')
-                ->join('products', 'shopping_carts.product_id', '=', 'products.id')
-                ->join('map_product_prices', 'shopping_carts.product_id', 'map_product_prices.product_id')
-                ->where('shopping_carts.user_id', $request->distributor_id)
-                ->where('map_product_prices.user_id', $request->distributor_id)
-                ->where('products.status', '=', 1)
-                ->where('map_product_prices.status', '=', 1)
-                ->get();
+            // $total_order = ShoppingCart::select('shopping_carts.quantity', 'products.*', 'map_product_prices.price')
+            //     ->join('products', 'shopping_carts.product_id', '=', 'products.id')
+            //     ->join('map_product_prices', 'shopping_carts.product_id', 'map_product_prices.product_id')
+            //     ->where('shopping_carts.user_id', $request->distributor_id)
+            //     ->where('map_product_prices.user_id', $request->distributor_id)
+            //     ->where('products.status', '=', 1)
+            //     ->where('map_product_prices.status', '=', 1)
+            //     ->get();
+
+
+            $total_order = ShoppingCart::select(
+                'shopping_carts.quantity',
+                'products.*',
+                DB::raw('COALESCE(map_product_prices.price, products.product_price) as price')
+            )
+            ->join('products', 'shopping_carts.product_id', '=', 'products.id')
+            ->leftJoin('map_product_prices', function($join) use ($request) {
+                $join->on('shopping_carts.product_id', '=', 'map_product_prices.product_id')
+                        ->where('map_product_prices.user_id', $request->distributor_id)
+                        ->where('map_product_prices.status', '=', 1);
+            })
+            ->where('shopping_carts.user_id', $request->distributor_id)
+            ->where('products.status', '=', 1)
+            ->get();
 
             $totalAmount = [];
             foreach ($total_order as $tot_order) {

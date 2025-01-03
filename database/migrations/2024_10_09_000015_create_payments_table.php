@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade')->nullable();
             $table->decimal('amount_paid',10,2);
-            $table->unsignedBigInteger('scheme_category_id');
+            $table->unsignedBigInteger('scheme_category_id')->nullable();
             $table->foreign('scheme_category_id')->references('id')->on('scheme_categorys')->onDelete('cascade')->onUpdate('cascade')->nullable();
             $table->boolean('payment_type')->default(1)->comment('1:Normal Payment, 0:Scheme Payment');
             $table->timestamps();
